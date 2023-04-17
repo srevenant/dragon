@@ -5,8 +5,6 @@ defmodule Dragon.Scss do
 
   use Dragon.Context
   import Dragon.Tools.File
-  import Dragon.Template.Read
-  import Dragon.Process.Data, only: [clean_data: 1]
 
   def evaluate_all(%Dragon{files: %{scss: l}} = d), do: evaluate_all(d, Map.keys(l))
 
@@ -23,5 +21,5 @@ defmodule Dragon.Scss do
     end
   end
 
-  def evaluate_all(%Dragon{} = d, []), do: {:ok, d}
+  def evaluate_all(%Dragon{} = d, _), do: {:ok, d}
 end

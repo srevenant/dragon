@@ -10,7 +10,7 @@ defmodule Dragon.Tools.IO do
         raise "oops"
         abort("Cannot open file '#{path}', cannot continue")
 
-      err ->
+      _err ->
         # IO.puts("\n\n\n\nReminder: This often is a 'blame' which is breaking parsing the actual exception\n\n\n")
         # IO.inspect(err, label: "File open error")
         abort("Cannot open file, cannot continue")

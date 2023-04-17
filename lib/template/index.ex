@@ -27,7 +27,7 @@ defmodule Dragon.Template do
     end
   end
 
-  def evaluate_all(%Dragon{} = d, []), do: {:ok, d}
+  def evaluate_all(%Dragon{} = d, _), do: {:ok, d}
 
   def processing(file, layout \\ nil)
   def processing(file, nil), do: notify([:green, "EEX Template ", :reset, :bright, file])

@@ -1,0 +1,20 @@
+--- dragon-1.0
+@spec:
+  args:
+  # - head: false
+--- eex
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta property="og:locale" content="en_US">
+<meta property="og:url" content="<%= @site.url %>" />
+<link rel="canonical" href="<%= @site.url %>" />
+<meta property="og:site_name" content="<%= @site.title %>" />
+<meta property="og:title" content="<%= @site.title %>" />
+<meta name="og:type" content="website" />
+<title><%= @site.title %></title>
+<link rel="icon" href="<%= path "img/icon.svg" %> ">
+<link rel="stylesheet" href="/assets/css/tachyons-field-v1.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<script defer src="<%= path "assets/js/index.js" %>"></script>
+</head>

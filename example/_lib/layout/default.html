@@ -1,0 +1,15 @@
+--- dragon-1.0
+@spec:
+  args:
+  - content
+--- eex
+<!DOCTYPE html>
+<html lang="en">
+<%= include "lib/head.html" %>
+<body id="body" class="light flex flex-column navbar-offset">
+<%= include "lib/navbar.html" %>
+<%= @page.content %>
+<div class="flex-grow-1"></div>
+<%= include "lib/footer.html" %>
+</body>
+</html>

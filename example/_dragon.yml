@@ -1,0 +1,16 @@
+version: 1.0
+## a list of data sources. Currently supported are type: file and collection
+data:
+  - type: collection
+    path: _news
+    # The "into" keyword inserts the data into the context using this keyword.
+    # if it is unspecified, the contents are inserted at the root of the context.
+    into: news
+  - type: file
+    path: _data
+
+# where are layout files located?
+layouts: _lib/layout
+
+# where does the "built" version of the site go?
+staging: _staging
