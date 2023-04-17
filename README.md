@@ -31,21 +31,41 @@ Additional topics:
 
 ## Installation
 
-Currently it must be installed within the application. Eventually we'd like it to
-be a global install, so you don't have to have it per-project. For now:
+Again: Work in progress.
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `dragon` to your list of dependencies in `mix.exs`:
+Currently it cannot be installed as a standalone app (that's coming).
 
-```elixir
-def deps do
-  [
-    {:dragon, "~> 0.1.0"}
-  ]
-end
+For now, create a folder "site" and build your service in there.
+
+### 1. Pre-Requisites:
+
+* Elixir
+  - MacOS: `brew install elixir`
+
+### 2. Install
+
+```
+mix deps.get
+mix compile
+```
+
+For the time being it temporarily uses an npm http server. Choose one:
+
+```
+brew install http-server
+```
+or
+```
+yarn global add http-server
 ```
 
 ## Using
+
+See Installation.
+
+Use script `./start.sh` (modify to suit).
+
+Or run:
 
 ```
 mix build {target folder}
