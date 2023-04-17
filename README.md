@@ -25,7 +25,7 @@ Benefits of Dragon:
   just include it from your local path. You can still use library folders if you
   so desire, in any location you choose.
 
-To better understand how it behaves, see [Conventions](docs/conventions.md).
+For more information see: [Using](docs/using.md).
 
 Additional topics:
 
