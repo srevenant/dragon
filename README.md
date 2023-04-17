@@ -1,6 +1,8 @@
 # Dragon — Content Management System using Embedded Elixir templates (EEX)
 
-<img src="doc/dragon-w500.webp" alt="Dragon Mascot" style="float: right; width: 50%;" />
+<div style="float: right; width: 25%; margin-left: 1rem;">
+<img src="doc/dragon-w500.webp" alt="Dragon Mascot">
+</div>
 
 Dragon is a content management system similar to Jekyll, but using Elixir and
 EEX templates, along with some improvements to behavior. It is the static-site
