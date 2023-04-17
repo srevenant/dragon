@@ -61,7 +61,6 @@ defmodule Dragon do
         end
 
       {:error, reason} ->
-        raise "oops"
         abort("Unable to find target site/config file '#{root}': #{reason}")
     end
   end

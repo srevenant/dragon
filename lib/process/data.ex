@@ -15,13 +15,22 @@ defmodule Dragon.Process.Data do
     abort("Unexpected error: invalid data config?")
   end
 
-  def get_into(%{into: into}), do: data_path(into)
-  def get_into(_), do: []
+  def get_into(dragon, %{into: into}), do: data_path(dragon.root, into)
+  def get_into(_, _), do: nil
+
+  ##############################################################################
+  def data_path(root, path) do
+    Dragon.Tools.File.drop_root(root, path)
+    |> Path.rootname()
+    |> Path.split()
+    |> Enum.reduce([], &(&2 ++ String.split(Dragon.Tools.File.export_fname(&1), ".")))
+    |> Transmogrify.transmogrify(%{value_convert: :atom, value_case: :snake})
+  end
 
   ##############################################################################
   def load_data(%Dragon{} = dragon, [%{type: "file", path: path} = args | rest]) do
     notify([:green, "Loading data", :reset, " from ", :bright, path])
-    prefix = get_into(args)
+    prefix = get_into(dragon, args)
 
     walk_tree(dragon, path,
       types: %{".yml" => &load_data_file/3, ".yaml" => &load_data_file/3},
@@ -36,7 +45,7 @@ defmodule Dragon.Process.Data do
 
   def load_data(%Dragon{root: root} = dragon, [%{type: "collection", path: path} = args | rest]) do
     fullpath = Path.join(root, path)
-    into = get_into(args)
+    into = get_into(dragon, args)
 
     case File.stat(fullpath) do
       {:ok, %{type: :directory}} ->
@@ -89,10 +98,11 @@ defmodule Dragon.Process.Data do
   def load_data_file(dragon, path, opts) do
     # strip off the first parts of the name... meh?
     datapath =
-      case {Map.get(opts, :prefix), Path.rootname(path) |> data_path()} do
-        {prefix, [_, _ | path]} when is_list(prefix) -> prefix ++ path
-        {_, [_, _ | path]} -> path
+      case {Map.get(opts, :prefix), data_path(dragon.root, path)} |> IO.inspect do
+        {nil, [ _ | path] } -> path
+        {prefix, path} when is_list(prefix) -> prefix ++ path
       end
+      |> IO.inspect
 
     notify([
       :green,
