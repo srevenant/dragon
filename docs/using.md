@@ -1,4 +1,7 @@
-# Conventions
+# Using
+
+See also: [Example](../example/)
+
 
 - ___Reserved files / Folders___ — 
   - `_dragon.yml` — This is the only required file name. It is the top level
