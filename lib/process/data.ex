@@ -94,7 +94,18 @@ defmodule Dragon.Process.Data do
         {_, [_, _ | path]} -> path
       end
 
-    notify([:green, "Loading ", :reset, :bright, path, :reset, :light_black, " into data path: ", :light_blue, Enum.join(datapath, ".")])
+    notify([
+      :green,
+      "Loading ",
+      :reset,
+      :bright,
+      path,
+      :reset,
+      :light_black,
+      " into data path: ",
+      :light_blue,
+      Enum.join(datapath, ".")
+    ])
 
     case YamlElixir.read_all_from_file(path) do
       # single map

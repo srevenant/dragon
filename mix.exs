@@ -8,17 +8,13 @@ defmodule Dragon.MixProject do
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      escript: escript(),
       aliases: aliases()
     ]
   end
 
   def aliases() do
     [
-      build: ["dragon.build"],
-      copy: ["dragon.copy"],
-      render: ["dragon.render"],
-      plugins: ["dragon.plugins"],
-      debug: ["dragon.debug"],
       c: ["compile"]
     ]
   end
@@ -29,15 +25,20 @@ defmodule Dragon.MixProject do
     ]
   end
 
+  def escript() do
+    [main_module: Dragon.Cli]
+  end
+
   defp deps do
     [
-      {:timex, "~> 3.0"},
-      {:sass, "~> 3.6.4"},
       {:earmark, "1.4.34"},
+      {:jason, "~> 1.0"},
+      {:sass, "~> 3.6.4"},
       {:phoenix_live_view, "~> 0.18.3"},
+      {:rivet, "~> 1.0.3"},
+      {:timex, "~> 3.0"},
       {:transmogrify, "~> 1.1.1"},
-      {:yaml_elixir, "~> 2.8.0"},
-      {:jason, "~> 1.0"}
+      {:yaml_elixir, "~> 2.8.0"}
     ]
   end
 end

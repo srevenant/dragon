@@ -25,5 +25,8 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 dragon-*.tar
 
+# ignore the escript binary
+dragon
+
 # Temporary files, for example, from tests.
 /tmp/

@@ -23,7 +23,9 @@ defmodule Dragon.Process.Prepare do
     type =
       with_open_file(path, fn fd ->
         case IO.binread(fd, 10) do
-          "--- dragon" -> :dragon
+          "--- dragon" ->
+            :dragon
+
           _ ->
             case Path.extname(path) do
               ".scss" -> :scss

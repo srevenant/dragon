@@ -8,7 +8,7 @@ defmodule Dragon.Process.Synchronize do
 
   """
 
-  import Dragon.Tools.IO
+  use Dragon.Context
 
   ##############################################################################
   def file_difference(file1, file2) do

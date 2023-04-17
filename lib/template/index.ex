@@ -119,7 +119,7 @@ defmodule Dragon.Template do
   def commit_file({:ok, path, content}) do
     info([:light_black, "  Saving ", :reset, path])
     Dragon.Tools.IO.write_file(path, content)
-   end
+  end
 
   ##############################################################################
   defp evaluate_template(%Dragon{imports: imports}, path, template, context) do

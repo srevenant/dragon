@@ -75,6 +75,7 @@ defmodule Dragon.Template.Read do
   ################################################################################
   defp get_separator_type(type) do
     [type | vdata] = String.downcase(type) |> String.trim() |> String.split("-")
+
     case determine_separator_type(type) do
       {:error, _} = pass -> pass
       type -> {:ok, type, vdata}

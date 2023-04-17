@@ -11,6 +11,7 @@ defmodule Dragon.Scss do
   def evaluate_all(%Dragon{} = d, [file | rest]) do
     with {:ok, path} <- find_file(d.root, file) do
       notify([:green, "SCSS ", :reset, :bright, path])
+
       with {:ok, content} <- Sass.compile_file(path) do
         path = Path.join(d.build, drop_root(d.root, Path.rootname(path) <> ".css"))
         info([:light_black, "  Saving ", :reset, path])

@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.Dragon.Build do
+defmodule Mix.Tasks.Build do
   use Mix.Task
 
   @moduledoc """
@@ -10,6 +10,7 @@ defmodule Mix.Tasks.Dragon.Build do
   @impl true
   def run([target]) do
     IO.puts(IO.ANSI.format([:light_blue, :bright, "Starting Dragon CMS"]))
+
     with {:ok, _} <- Dragon.startup(target),
          {:ok, dragon} <- Dragon.get(),
          {:ok, dragon} <- Dragon.Process.Prepare.prepare_build(dragon) do
