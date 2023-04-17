@@ -48,3 +48,5 @@ end
 ```
 mix build {target folder}
 ```
+
+See also: [Example](example/)
