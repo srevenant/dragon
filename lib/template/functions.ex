@@ -1,33 +1,13 @@
 defmodule Dragon.Template.Functions do
-  alias Dragon.Utils
+  import Dragon.Tools.File, only: [drop_root: 2]
   use Dragon.Context
 
-  # is there a better way?
-  def generate_local(state) do
-    %{
-      include: fn x -> local_include(x, [], state) end,
-      include2: fn x, y -> local_include(x, y, state) end,
-    }
-  end
-
-  defp local_include(path, args, %{parent: parent}) do
-    root = Dragon.get!(:root)
-
-    path =
-      case path do
-        "./" <> rest -> rest
-        pass -> pass
-      end
-
-    path = Path.join(Dragon.Tools.File.drop_root(root, parent) |> Path.dirname(), path)
-
-    include(path, args)
-  end
-
   def include(path, args \\ []) do
-    case Dragon.Template.Evaluate.include_file(path, Dragon.get!(), :inline, args) do
-      {:error, error} -> abort(error)
-      {:ok, _, content} -> content
+    with {:ok, path} <- fix_relative_path(path) do
+      case Dragon.Template.Evaluate.include_file(path, Dragon.get!(), :inline, args) do
+        {:error, error} -> abort(error)
+        {:ok, _, content} -> content
+      end
     end
   end
 
@@ -40,16 +20,12 @@ defmodule Dragon.Template.Functions do
   def path("#" <> _id = fragment), do: fragment
 
   def path(dest) do
-    with {:ok, root} <- Dragon.get(:root) do
-      dest_path = Path.join(root, dest)
-
-      case File.regular?(dest_path) do
-        true ->
-          Path.join("/", Utils.transform_suffix(dest))
-          |> String.replace_suffix("/index.html", "/")
-
-        false ->
-          {:error, "#{dest_path} is not a file"}
+    with {:ok, path} <- fix_relative_path(dest), {:ok, root} <- Dragon.get(:root) do
+      localized_path = Path.join(Path.split(Path.join(root, path)))
+      case File.regular?(localized_path) do
+        # reformat as std URL, no wonky dos things
+        true -> "/#{Path.split(path) |> Enum.join("/")}"
+        false -> abort("#{path} (#{dest}) is not a file")
       end
     end
   end
@@ -64,4 +40,12 @@ defmodule Dragon.Template.Functions do
   def say(content) do
     IO.inspect(content, label: "SAY")
   end
+
+  defp fix_relative_path("./" <> path) do
+    with %{this: parent} <- Dragon.frame_head(), {:ok, root} <- Dragon.get(:root) do
+      {:ok, drop_root(root, parent) |> Path.dirname() |> Path.join(path)}
+    end
+  end
+
+  defp fix_relative_path(path), do: {:ok, path}
 end

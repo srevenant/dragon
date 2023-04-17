@@ -99,5 +99,4 @@ defmodule Dragon.Template.Env do
   defp posix_erl_to_datetime(erl) do
     NaiveDateTime.from_erl!(erl) |> DateTime.from_naive!("Etc/UTC")
   end
-
 end

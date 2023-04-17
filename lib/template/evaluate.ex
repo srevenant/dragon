@@ -2,7 +2,6 @@ defmodule Dragon.Template.Evaluate do
   use Dragon.Context
   import Dragon.Tools.File
   import Dragon.Template.Read
-  import Dragon.Process.Data, only: [clean_data: 1]
 
   @moduledoc """
   Core bits for Template handling.
@@ -110,16 +109,33 @@ defmodule Dragon.Template.Evaluate do
     Dragon.Tools.IO.write_file(path, content)
   end
 
+  # side-effect execution frame state management
+  defp with_frame(update, inner) do
+    try do
+      update.(Dragon.frame_head()) |> Dragon.frame_push() |> inner.()
+    after
+      Dragon.frame_pop()
+    end
+  end
+
   ##############################################################################
   defp evaluate_template(%Dragon{imports: imports}, path, template, env) do
-    # enrich some functions — TEMPORARY option, this is hacky and we need a
-    # better way...
-    local = Dragon.Template.Functions.generate_local(%{parent: path})
-    args = [assigns: Map.to_list(env) |> Keyword.put(:local, local)]
-    # context = [{:assigns, Map.to_list(context)} | helpers]
+    with_frame(
+      fn prev ->
+        case prev do
+          nil -> %{prev: nil, this: path, top: path}
+          %{this: prev} = frame -> %{frame | prev: prev, this: path}
+        end
+      end,
+      fn frame ->
+        evaluate_frame(frame, imports, path, template, env)
+      end
+    )
+  end
 
+  defp evaluate_frame(_frame, imports, path, template, env) do
     try do
-      {:ok, EEx.eval_string(imports <> template, args)}
+      {:ok, EEx.eval_string(imports <> template, assigns: Map.to_list(env))}
     rescue
       err ->
         case err do

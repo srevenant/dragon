@@ -36,7 +36,9 @@ defmodule Dragon.MixProject do
   end
 
   def escript() do
-    [main_module: Dragon.Cli]
+    [main_module: Dragon.Cli,
+    strip_beams: false
+  ]
   end
 
   defp deps do

@@ -20,7 +20,8 @@ defmodule Dragon do
             plugins: @always_plugins,
             files: %{},
             opts: %{},
-            state: %{}
+            # execution frames
+            frames: []
 
   @type t :: %Dragon{
           root: String.t(),
@@ -31,7 +32,7 @@ defmodule Dragon do
           plugins: list(map()) | map(),
           files: %{(path :: String.t()) => atom()},
           opts: %{atom() => any()},
-          state: map()
+          frames: list()
         }
 
   def startup(target), do: GenServer.start_link(__MODULE__, target, name: __MODULE__)
@@ -75,7 +76,10 @@ defmodule Dragon do
     with {:ok, value} <- get(key), do: value
   end
 
-  def update_state(key, value), do: GenServer.call(__MODULE__, {:update_state, key, value})
+  # frame / execution stack management
+  def frame_push(value), do: GenServer.call(__MODULE__, {:frame_push, value})
+  def frame_pop(), do: GenServer.call(__MODULE__, :frame_pop)
+  def frame_head(), do: GenServer.call(__MODULE__, :frame_head)
 
   ##############################################################################
   # note: Dragon state is immutable after being initialized. It's only a
@@ -85,8 +89,28 @@ defmodule Dragon do
   def handle_call(:get, _, state), do: {:reply, {:ok, state}, state}
   def handle_call({:get, key}, _, state), do: {:reply, {:ok, Map.get(state, key)}, state}
 
-  def handle_call({:update_state, key, value}, _, state),
-    do: {:reply, :ok, %Dragon{state: Map.put(state.state, key, value)}}
+  # keep it in the dragon struct, but if this gets too big we can move it to
+  # a separate process
+  def handle_call({:frame_push, value}, _, state),
+    do: {:reply, value, %Dragon{state | frames: [value | state.frames]}}
+
+  def handle_call(:frame_pop, _, state) do
+    {:reply, :ok,
+     %Dragon{
+       state
+       | frames:
+           case state.frames do
+             [] -> []
+             [_ | frames] -> frames
+           end
+     }}
+  end
+
+  def handle_call(:frame_head, _, %{frames: [head | _]} = state),
+    do: {:reply, head, state}
+
+  def handle_call(:frame_head, _, %{frames: []} = state),
+    do: {:reply, nil, state}
 
   ##############################################################################
   defp update_paths(%Dragon{build: build} = d, root),

@@ -7,6 +7,7 @@ defmodule Dragon.Plugin.Redirects do
     # scan headers & update
     {:ok, path, content}
   end
+
   def run(_, path, _, content), do: {:ok, path, content}
 
   #   with {:ok, file_paths_and_frontmatter} <- Utils.fast_get_frontmatters(file_paths) do
