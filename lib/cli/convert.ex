@@ -1,4 +1,4 @@
-defmodule Dragon.CLI.Convert do
+defmodule Dragon.Cli.Convert do
   @shortdoc "Convert a Jekyll Project to a Dragon Project"
 
   def run(_optcfg, _opts, _args) do

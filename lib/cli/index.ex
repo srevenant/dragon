@@ -3,13 +3,15 @@ defmodule Dragon.Cli do
     switches: [],
     aliases: [],
     commands: [
-      {"b?uild", Dragon.CLI.Build},
-      {"s?erve", Dragon.CLI.Serve},
-      {"n?ew", Dragon.CLI.New},
-      {"con?vert", Dragon.CLI.Convert}
+      {"b?uild", Dragon.Cli.Build},
+      {"s?erve", Dragon.Cli.Serve},
+      {"n?ew", Dragon.Cli.New},
+      {"con?vert", Dragon.Cli.Convert}
     ],
     command: "dragon"
   ]
 
-  def main(args), do: Rivet.Cli.run_command(args, @opts)
+  def main(args) do
+    Rivet.Utils.Cli.run_command(args, @opts)
+  end
 end

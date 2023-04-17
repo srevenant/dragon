@@ -3,7 +3,7 @@ defmodule Dragon.Context do
     quote location: :keep do
       @config_file "_dragon.yml"
       import Dragon.Tools.IO
-      import Rivet.Cli.Print
+      import Rivet.Utils.Cli.Print
     end
   end
 end

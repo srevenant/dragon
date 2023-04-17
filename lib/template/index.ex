@@ -232,13 +232,11 @@ defmodule Dragon.Template do
 
   # there is probably a better way
   def iso_utc_offset() do
-    padded = fn x -> String.pad_leading("#{x}", 2, "0") end
-    offset = Timex.Timezone.local().offset_utc / 3600
-    sep = if offset > 0, do: "+", else: "-"
-    offset = abs(offset)
-    hour = padded.(trunc(offset))
-    min = padded.(trunc(offset - trunc(offset) * 60))
-    "#{sep}#{hour}:#{min}"
+    p = fn x -> String.pad_leading("#{x}", 2, "0") end
+    case :calendar.time_difference(:calendar.universal_time, :calendar.local_time) do
+      {0, {hour, min, _}} -> "+#{p.(hour)}:#{p.(min)}"
+      {-1, {hour, min, _}} -> "-#{p.(24 - hour)}:#{p.(min)}"
+    end
   end
 
   # need to figure out TZ offset adjustments

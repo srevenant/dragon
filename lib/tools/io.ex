@@ -1,5 +1,5 @@
 defmodule Dragon.Tools.IO do
-  import Rivet.Cli.Print
+  import Rivet.Utils.Cli.Print
   # alias IO.ANSI
 
   def open_file(path) do

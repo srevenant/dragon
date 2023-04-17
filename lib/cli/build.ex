@@ -1,7 +1,24 @@
-defmodule Dragon.CLI.Build do
+defmodule Dragon.Cli.Build do
+  import Rivet.Utils.Cli
   @shortdoc "Build a Dragon Project's content"
 
-  def run(_optcfg, _opts, _args) do
+  def run(_optcfg, _opts, [target]), do: build(target)
+
+  def run(optcfg, _, _), do: syntax(optcfg, "build {target} — No target specified")
+
+  def build(target) do
+    IO.puts(IO.ANSI.format([:light_blue, :bright, "Starting Dragon CMS"]))
+
+    with {:ok, _} <- Dragon.startup(target),
+         {:ok, dragon} <- Dragon.get(),
+         {:ok, dragon} <- Dragon.Process.Prepare.prepare_build(dragon) do
+      Dragon.Template.evaluate_all(dragon)
+      Dragon.Scss.evaluate_all(dragon)
+    else
+      err ->
+        IO.inspect(err)
+    end
+    
     :ok
   end
 end
