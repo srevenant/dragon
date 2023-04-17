@@ -98,11 +98,10 @@ defmodule Dragon.Process.Data do
   def load_data_file(dragon, path, opts) do
     # strip off the first parts of the name... meh?
     datapath =
-      case {Map.get(opts, :prefix), data_path(dragon.root, path)} |> IO.inspect do
+      case {Map.get(opts, :prefix), data_path(dragon.root, path)} do
         {nil, [ _ | path] } -> path
         {prefix, path} when is_list(prefix) -> prefix ++ path
       end
-      |> IO.inspect
 
     notify([
       :green,
