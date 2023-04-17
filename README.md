@@ -22,6 +22,8 @@ Benefits of Dragon:
   - No requirements for includes or layouts folders. Templates can be inline
     in the current folder, or separately elsewhere.
 
+To better understand how it behaves, see [Conventions](doc/conventions.md).
+
 Additional topics:
 
 * [Installation](#Installation)

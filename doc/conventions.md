@@ -1,24 +1,37 @@
 # Conventions
 
-- ___Meta Files___ — Files & folders beginning with underscore are "meta" files:
-  - Meta files are not included in the rendered content, unless they are included
-    in some other file.
-  - Meta files may be referenced with or without beginning underscore. Example:
-
-    `include "lib/to/file.html"`
-
-    This will match `_lib/to/file.html` `_lib/to/_file.html` and other similar
-    variations.
-
-  - Contents below a meta folder will not be included, even if those
-    files do not include an underscore.
-- ___File Extensions___ — File extension aligns with desired/target file type,
-  regardless of if its templated or not.
-
-- ___Special files___ — 
-  - `_dragon.yml` -> top level configuration, should be in the root of your site.
-  - layout files are located in a folder which is configured in your dragon
+- ___Reserved files / Folders___ — 
+  - `_dragon.yml` — This is the only required file name. It is the top level
+    configuration file and should be in the root of your site folder.
+  - Layout files are located in a folder which is configured in your dragon
     config file as "layouts" — default is `_lib/layout`
+
+- ___File management___ — all files in the target folder will be processed,
+  depending on their content type. Files are either _meta_, _special_,
+  or _plain_, and are identified in this same order. If a file is a meta file,
+  it will not be considered as a special file. If it is a special file, then it
+  is not considered as a plain file.
+  - ___meta___ files are those that begin with an underscore.
+    - Meta files are not included in the rendered content, unless they are
+      included in another file.
+    - Meta files may be referenced with or without beginning underscore. Example:
+
+      `include "lib/to/file.html"`
+
+      This will match `_lib/to/file.html` `_lib/to/_file.html` and other similar
+      variations.
+    - Contents below a meta folder will not be included, even if those
+      files do not include an underscore.
+  - ___special___ files either Templates, or are known by file extension/type
+    (currently: ".scss"). Templates, which can be any file type, are text files
+    which begin with a dragon template header `--- dragon-1.0`.
+    Special files are processed before being saved into the build folder.
+  - ___plain___ files are those which are neither meta nor special, and they are
+    simply copied verbatim to the build folder, preserving modes, as well as
+    modified and creation times.
+  - ___File Extensions___ — File extensions align with desired/target file type,
+    regardless of if its templated or not. Do not use `.eex` files, but rather
+    `.html`, `.txt`, or others as appropriate.
 
 - ___Data___ —
   - Data imports are specified in the dragon config file, and may be one of two types: file(yml) and collection.
