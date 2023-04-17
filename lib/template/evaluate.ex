@@ -1,4 +1,4 @@
-defmodule Dragon.Template do
+defmodule Dragon.Template.Evaluate do
   use Dragon.Context
   import Dragon.Tools.File
   import Dragon.Template.Read
@@ -14,21 +14,22 @@ defmodule Dragon.Template do
 
   """
 
-  def evaluate_all(%Dragon{files: %{dragon: l}} = d), do: evaluate_all(d, Map.keys(l))
+  def all(%Dragon{files: %{dragon: l}} = d), do: all(d, Map.keys(l))
 
-  def evaluate_all(%Dragon{} = d, [file | rest]) do
+  def all(%Dragon{} = d, [file | rest]) do
     with {:ok, path} <- find_file(d.root, file) do
       read_template_header(path)
       |> evaluate(:primary, d)
       |> validate()
       |> commit_file()
 
-      evaluate_all(d, rest)
+      all(d, rest)
     end
   end
 
-  def evaluate_all(%Dragon{} = d, _), do: {:ok, d}
+  def all(%Dragon{} = d, _), do: {:ok, d}
 
+  ##############################################################################
   def processing(file, layout \\ nil)
   def processing(file, nil), do: notify([:green, "EEX Template ", :reset, :bright, file])
 
@@ -44,7 +45,7 @@ defmodule Dragon.Template do
   # the layout template, sending the current output into that as a page
   # argument (@page.content)
   def evaluate(
-        {:ok, %{"@spec": %{layout: layout}} = h, path, offset},
+        {:ok, %{"@spec": %{layout: layout}} = headers, path, offset},
         :primary,
         %Dragon{} = d,
         args
@@ -52,22 +53,22 @@ defmodule Dragon.Template do
     processing(path, layout)
 
     with {:ok, content} <- read_template_body(path, offset),
-         {:ok, context} <- generate_context(path, h, d, args),
-         {:ok, output} <- evaluate_template(d, path, content, context),
+         {:ok, env} <- Dragon.Template.Env.get_for(path, headers, d, args),
+         {:ok, output} <- evaluate_template(d, path, content, env),
          {:ok, _, output} <-
            include_file(Path.join(d.layouts, "_#{layout}"), d, :layout, content: output),
-         do: postprocess(d, path, output)
+         do: postprocess(d, headers, path, output)
   end
 
-  def evaluate({:ok, h, path, offset}, type, %Dragon{} = d, args) do
+  def evaluate({:ok, headers, path, offset}, type, %Dragon{} = d, args) do
     if type != :layout do
       processing(path)
     end
 
     with {:ok, content} <- read_template_body(path, offset),
-         {:ok, context} <- generate_context(path, h, d, args),
-         {:ok, output} <- evaluate_template(d, path, content, context),
-         do: postprocess(d, path, output)
+         {:ok, env} <- Dragon.Template.Env.get_for(path, headers, d, args),
+         {:ok, output} <- evaluate_template(d, path, content, env),
+         do: postprocess(d, headers, path, output)
   end
 
   def evaluate({:error, reason}, _, _, _), do: abort("Unable to continue: #{reason}")
@@ -98,21 +99,9 @@ defmodule Dragon.Template do
   end
 
   ##############################################################################
-  def postprocess(%{root: root, build: build}, path, content) do
+  def postprocess(%{root: root, build: build} = d, headers, path, content) do
     path = Path.join(build, Dragon.Tools.File.drop_root(root, path))
-
-    case Path.extname(path) do
-      ".md" ->
-        newname = Path.rootname(path) <> ".html"
-
-        case Earmark.as_html(content, escape: false) do
-          {:ok, content, _} -> {:ok, newname, content}
-          {:error, _ast, error} -> {:error, error}
-        end
-
-      _ ->
-        {:ok, path, content}
-    end
+    Dragon.Plugin.postprocess(d, path, headers, content)
   end
 
   ##############################################################################
@@ -122,14 +111,15 @@ defmodule Dragon.Template do
   end
 
   ##############################################################################
-  defp evaluate_template(%Dragon{imports: imports}, path, template, context) do
+  defp evaluate_template(%Dragon{imports: imports}, path, template, env) do
     # enrich some functions — TEMPORARY option, this is hacky and we need a
     # better way...
-    helpers = Dragon.Template.Helpers.generate_context(%{parent: path})
-    context = [{:assigns, Map.to_list(context)} | helpers]
+    local = Dragon.Template.Functions.generate_local(%{parent: path})
+    args = [assigns: Map.to_list(env) |> Keyword.put(:local, local)]
+    # context = [{:assigns, Map.to_list(context)} | helpers]
 
     try do
-      {:ok, EEx.eval_string(imports <> template, context)}
+      {:ok, EEx.eval_string(imports <> template, args)}
     rescue
       err ->
         case err do
@@ -190,112 +180,5 @@ defmodule Dragon.Template do
   defp print_with_line(prefix, index, line) do
     padded = String.pad_leading("#{index}", 3)
     IO.puts(:stderr, IO.ANSI.format([:blue, :bright, "#{prefix}#{padded}: ", :reset, line]))
-  end
-
-  ##############################################################################
-  @daterx ~r/(\d{2,4}[-_]\d{1,2}[-_]\d{1,2})([-_T]\d{1,2}:\d{1,2}(:\d{1,2})?([-+]?\d{2}:\d{2}|[A-Z]+)?)?[-_]/
-
-  def get_title_from_file(origin) do
-    origin = Path.basename(origin) |> Path.rootname()
-    Regex.replace(@daterx, origin, "") |> String.replace("_", " ")
-  end
-
-  def get_posted_time(_, origin, %{date: date}), do: to_datetime(date, origin)
-
-  def get_posted_time(ctime, origin, _) do
-    case Regex.run(@daterx, origin) do
-      nil ->
-        posix_erl_to_datetime(ctime)
-
-      [_, date, "-" <> time] ->
-        to_datetime("#{date}T#{time}:00#{iso_utc_offset()}", origin)
-
-      [_, date, "T" <> time] ->
-        to_datetime("#{date}T#{time}:00#{iso_utc_offset()}", origin)
-
-      [_, date, "-" <> time, _] ->
-        to_datetime("#{date}T#{time}#{iso_utc_offset()}", origin)
-
-      [_, date, "T" <> time, _] ->
-        to_datetime("#{date}T#{time}#{iso_utc_offset()}", origin)
-
-      [_, date, "-" <> time, _, _] ->
-        to_datetime("#{date}T#{time}", origin)
-
-      [_, date, "T" <> time, _, _] ->
-        to_datetime("#{date}T#{time}", origin)
-
-      [_, date] ->
-        to_datetime("#{date}T00:00:00Z", origin)
-    end
-  end
-
-  # there is probably a better way
-  def iso_utc_offset() do
-    p = fn x -> String.pad_leading("#{x}", 2, "0") end
-    case :calendar.time_difference(:calendar.universal_time, :calendar.local_time) do
-      {0, {hour, min, _}} -> "+#{p.(hour)}:#{p.(min)}"
-      {-1, {hour, min, _}} -> "-#{p.(24 - hour)}:#{p.(min)}"
-    end
-  end
-
-  # need to figure out TZ offset adjustments
-  def to_datetime(date, origin) do
-    case DateTime.from_iso8601(date) do
-      {:ok, datetime, _} -> datetime
-      {:error, what} -> abort("Unrecognized datetime for #{origin}: #{date} — #{what}")
-    end
-  end
-
-  def posix_erl_to_datetime(erl) do
-    NaiveDateTime.from_erl!(erl) |> DateTime.from_naive!("Etc/UTC")
-  end
-
-  ##############################################################################
-  def get_file_context(origin, data) when is_map(data) do
-    # case YamlElixir.read_from_string(header) do
-    #   {:ok, data} ->
-    data = clean_data(data)
-
-    {:ok,
-     case File.stat(origin) do
-       {:ok, stat} ->
-         date = get_posted_time(stat.ctime, origin, data)
-
-         %{
-           date_modified: posix_erl_to_datetime(stat.mtime),
-           date: date,
-           date_t: DateTime.to_unix(date),
-           title: get_title_from_file(origin)
-         }
-
-       _ ->
-         abort("file disappeared during processing?")
-     end
-     |> Map.merge(Map.delete(data, :date))}
-
-    #
-    #   {:error, msg} ->
-    #     IO.inspect(msg, label: "generate_context error")
-    #     abort("ERR")
-    # end
-  end
-
-  def generate_context(origin, header, dragon, args \\ []) do
-    with {:ok, data} <- get_file_context(origin, header) do
-      args = Map.new(args)
-
-      Map.get(data, :"@page", %{args: []})
-      |> Map.get(:args, [])
-      |> Enum.each(fn required ->
-        if not Map.has_key?(args, String.to_atom(required)) do
-          abort("Template #{origin} requires input arg '#{required}' which is missing")
-        end
-      end)
-
-      page = Map.merge(data, args)
-
-      {:ok, Map.merge(dragon.data, %{dragon: dragon, page: page})}
-    end
   end
 end

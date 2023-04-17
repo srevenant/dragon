@@ -45,7 +45,8 @@ defmodule Dragon.MixProject do
       {:jason, "~> 1.0"},
       {:sass, "~> 3.6.4"},
       {:phoenix_live_view, "~> 0.18.3"},
-      {:rivet_utils, "~> 1.1.5", git: "https://github.com/srevenant/rivet-utils", branch: "master"},
+      {:rivet_utils, "~> 1.1.5",
+       git: "https://github.com/srevenant/rivet-utils", branch: "master"},
       {:transmogrify, "~> 1.1.1"},
       {:yaml_elixir, "~> 2.8.0"}
     ]

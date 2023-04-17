@@ -87,7 +87,7 @@ defmodule Dragon.Process.Data do
         abort("Unable to load file header (#{path}): #{reason}")
 
       {:ok, header, _, _} ->
-        with {:ok, meta} <- Dragon.Template.get_file_context(path, header) do
+        with {:ok, meta} <- Dragon.Template.Env.get_file_metadata(path, header) do
           # image data?
           Map.take(meta, [:title, :date, :date_t, :date_modified])
         end
@@ -99,7 +99,7 @@ defmodule Dragon.Process.Data do
     # strip off the first parts of the name... meh?
     datapath =
       case {Map.get(opts, :prefix), data_path(dragon.root, path)} do
-        {nil, [ _ | path] } -> path
+        {nil, [_ | path]} -> path
         {prefix, path} when is_list(prefix) -> prefix ++ path
       end
 
@@ -126,7 +126,7 @@ defmodule Dragon.Process.Data do
         put_into(dragon, [:data | datapath], list)
 
       error ->
-        IO.inspect(error)
+        IO.inspect(error, label: "Error parsing YAML")
         abort("Cannot continue")
     end
   end

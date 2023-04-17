@@ -15,11 +15,11 @@ defmodule Dragon.Cli.Build do
     with {:ok, _} <- Dragon.startup(target),
          {:ok, dragon} <- Dragon.get(),
          {:ok, dragon} <- Dragon.Process.Prepare.prepare_build(dragon) do
-      Dragon.Template.evaluate_all(dragon)
-      Dragon.Scss.evaluate_all(dragon)
+      Dragon.Template.Evaluate.all(dragon)
+      Dragon.Scss.Evaluate.all(dragon)
     else
       err ->
-        IO.inspect(err)
+        IO.inspect(err, label: "Error running dragon")
     end
 
     info("\n#{(:os.system_time(:millisecond) - start) / 1000} seconds runtime\n")

@@ -1,4 +1,4 @@
-defmodule Dragon.Scss do
+defmodule Dragon.Scss.Evaluate do
   @moduledoc """
 
   """
@@ -6,9 +6,9 @@ defmodule Dragon.Scss do
   use Dragon.Context
   import Dragon.Tools.File
 
-  def evaluate_all(%Dragon{files: %{scss: l}} = d), do: evaluate_all(d, Map.keys(l))
+  def all(%Dragon{files: %{scss: l}} = d), do: all(d, Map.keys(l))
 
-  def evaluate_all(%Dragon{} = d, [file | rest]) do
+  def all(%Dragon{} = d, [file | rest]) do
     with {:ok, path} <- find_file(d.root, file) do
       notify([:green, "SCSS ", :reset, :bright, path])
 
@@ -18,9 +18,9 @@ defmodule Dragon.Scss do
         Dragon.Tools.IO.write_file(path, content)
       end
 
-      evaluate_all(d, rest)
+      all(d, rest)
     end
   end
 
-  def evaluate_all(%Dragon{} = d, _), do: {:ok, d}
+  def all(%Dragon{} = d, _), do: {:ok, d}
 end

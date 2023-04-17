@@ -3,19 +3,21 @@ defmodule Dragon do
   use Dragon.Context
 
   @always_imports [
-    "Dragon.Template.Helpers",
+    "Dragon.Template.Functions",
     "Transmogrify",
     "Transmogrify.As"
+  ]
+
+  @always_plugins [
+    %{when: "postprocess", module: "Dragon.Plugin.Markdown"}
   ]
 
   defstruct root: ".",
             build: "_build",
             layouts: "_lib/layout",
             data: nil,
-            # layouts: "user/.dragon/layouts",
-            # includes: "user/.dragon/includes",
-            # copy: [],
             imports: @always_imports,
+            plugins: @always_plugins,
             files: %{},
             opts: %{},
             state: %{}
@@ -26,11 +28,7 @@ defmodule Dragon do
           layouts: String.t(),
           data: list(map) | map() | nil,
           imports: list(String.t()) | String.t(),
-          # layouts: String.t(),
-          # includes: String.t(),
-          # scss: String.t(),
-          # plugins: String.t(),
-          # copy: list(String.t()),
+          plugins: list(map()) | map(),
           files: %{(path :: String.t()) => atom()},
           opts: %{atom() => any()},
           state: map()
@@ -50,6 +48,7 @@ defmodule Dragon do
             struct(__MODULE__, Transmogrify.transmogrify(config))
             |> update_paths(root)
             |> update_imports()
+            |> update_plugins()
             |> Dragon.Process.Data.load_data()
 
           {:error, %{message: msg}} ->
@@ -99,4 +98,23 @@ defmodule Dragon do
 
     %Dragon{d | imports: "<% #{imports} %>\n"}
   end
+
+  defp update_plugins(%Dragon{plugins: plugs} = d) when is_list(plugs),
+    do: %Dragon{d | plugins: prepare_plugins(plugs, %{postprocess: []})}
+
+  defp prepare_plugins(
+         [%{when: "postprocess", module: name} | rest],
+         %{postprocess: list} = plugs
+       ) do
+    # TODO: check plugin module exists; put into struct
+    prepare_plugins(rest, %{plugs | postprocess: [String.to_atom("Elixir.#{name}") | list]})
+  end
+
+  defp prepare_plugins([nope | _], _) do
+    error("Invalid plugin detected")
+    IO.inspect(nope, label: "PLUGIN")
+    abort("Cannot continue")
+  end
+
+  defp prepare_plugins([], out), do: out
 end

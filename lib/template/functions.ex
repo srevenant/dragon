@@ -1,12 +1,16 @@
-defmodule Dragon.Template.Helpers do
+defmodule Dragon.Template.Functions do
   alias Dragon.Utils
   use Dragon.Context
 
-  def generate_context(state) do
-    [relative_include: fn x, y -> relative_include(x, y, state) end]
+  # is there a better way?
+  def generate_local(state) do
+    %{
+      include: fn x -> local_include(x, [], state) end,
+      include2: fn x, y -> local_include(x, y, state) end,
+    }
   end
 
-  defp relative_include(path, args, %{parent: parent}) do
+  defp local_include(path, args, %{parent: parent}) do
     root = Dragon.get!(:root)
 
     path =
@@ -21,7 +25,7 @@ defmodule Dragon.Template.Helpers do
   end
 
   def include(path, args \\ []) do
-    case Dragon.Template.include_file(path, Dragon.get!(), :inline, args) do
+    case Dragon.Template.Evaluate.include_file(path, Dragon.get!(), :inline, args) do
       {:error, error} -> abort(error)
       {:ok, _, content} -> content
     end
