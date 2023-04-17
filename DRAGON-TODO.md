@@ -6,20 +6,6 @@
 - include file/title enrichment for all files, not just collections.
 - @spec.args: elements support dictionary/default key syntaxes for defaults
 --------------------------------
-RULES:
-
-- Files & folders beginning with underscore are "meta" files:
-  - Meta files are not included in the final site
-  - Meta files may be referenced with or without beginning underscore
-    - Conflicts — result in warning/error message
-  - Contents below a meta folder will not be included, even if those
-    files do not include an underscore.
-- File extension matches desired/target file type, not current type
-- Special files/Folders:
-    _dragon.yml -> top level configuration
-    layout files are located in the "layouts" configured folder
-
---------------------------------
 
 Internal stages:
 
