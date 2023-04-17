@@ -1,4 +1,6 @@
-# Dragon — Content Management System using Embedded Elixir templates (EEX)
+# Dragon
+
+### Website Content Management System using Embedded Elixir templates (EEX)
 
 <div style="float: right; width: 25%; margin-left: 1rem;">
 <img src="doc/dragon-w500.webp" alt="Dragon Mascot">
