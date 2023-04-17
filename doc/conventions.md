@@ -34,7 +34,7 @@
     `.html`, `.txt`, or others as appropriate.
 
 - ___Data___ —
-  - Data imports are specified in the dragon config file, and may be one of two types: file(yml) and collection.
+  - Data imports are specified in the dragon config file, and may be one of two types: _file_ (yml) and _collection_ (future: _ecto_).
   - __File__ data targets should be folders. All yml file contents are loaded into the dragon context,
     matching file/folder heirarchy to a deep-map structure. Location within the context
     is assigned in the data specification.
