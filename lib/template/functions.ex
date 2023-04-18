@@ -20,9 +20,12 @@ defmodule Dragon.Template.Functions do
   def path("#" <> _id = fragment), do: fragment
 
   def path(dest) do
-    with {:ok, path} <- fix_relative_path(dest), {:ok, root} <- Dragon.get(:root) do
-      localized_path = Path.join(Path.split(Path.join(root, path)))
-      case File.regular?(localized_path) do
+    with {:ok, path} <- fix_relative_path(dest),
+         {:ok, root} <- Dragon.get(:root),
+         {:ok, build} <- Dragon.get(:build) do
+      build_target = (Path.split(build) ++ (drop_root(root, path) |> Path.split())) |> Path.join()
+
+      case File.regular?(build_target) do
         # reformat as std URL, no wonky dos things
         true -> "/#{Path.split(path) |> Enum.join("/")}"
         false -> abort("#{path} (#{dest}) is not a file")

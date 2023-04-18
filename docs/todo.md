@@ -6,3 +6,14 @@
 - @spec.args: elements support dictionary/default key syntaxes for defaults
 - validation stage
 - deploy stage
+- parse more template errors/tracebacks and make them more human readable, like:
+
+```
+** (KeyError) key :title not found in: %{name: "A site wide name", url: "https://example.com"}
+    nofile:8: (file)
+    nofile:4: (file)
+    (stdlib 4.1.1) erl_eval.erl:748: :erl_eval.do_apply/7
+    (stdlib 4.1.1) erl_eval.erl:323: :erl_eval.expr/6
+    (stdlib 4.1.1) erl_eval.erl:492: :erl_eval.expr/6
+    (stdlib 4.1.1) erl_eval.erl:136: :erl_eval.exprs/6
+```

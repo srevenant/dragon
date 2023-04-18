@@ -1,5 +1,5 @@
 --- dragon-1.0
-title: Optional
+title: Optional Collection
 --- eex
 
 A news post

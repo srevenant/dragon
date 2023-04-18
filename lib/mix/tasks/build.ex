@@ -1,11 +1,8 @@
-defmodule Mix.Tasks.Build do
+defmodule Mix.Tasks.Dragon.Build do
+  @shortdoc "Build from templates"
+  @moduledoc @shortdoc
+
   use Mix.Task
-
-  @moduledoc """
-  Build from templates
-  """
-
-  @shortdoc "build from templates"
 
   @impl true
   def run([target]), do: Dragon.Cli.Build.build(target)

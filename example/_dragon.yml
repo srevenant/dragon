@@ -13,4 +13,4 @@ data:
 layouts: _lib/layout
 
 # where does the "built" version of the site go?
-staging: _staging
+staging: _build

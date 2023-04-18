@@ -1,5 +1,8 @@
 defmodule Dragon.Cli.Convert do
-  @shortdoc "Convert a Jekyll Project to a Dragon Project"
+  @moduledoc "Convert a Jekyll Project to a Dragon Project"
+
+  import Rivet.Utils.Cli
+  import Rivet.Utils.Cli.Print
 
   def run(_optcfg, _opts, _args) do
     :ok

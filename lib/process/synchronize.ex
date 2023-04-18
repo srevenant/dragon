@@ -25,8 +25,9 @@ defmodule Dragon.Process.Synchronize do
   def synchronize(%Dragon{files: %{file: files}} = dragon),
     do: synchronize(dragon, Map.keys(files))
 
-  def synchronize(_), do: :ok
+  def synchronize(dragon), do: {:ok, dragon}
 
+  ##############################################################################
   def synchronize(%Dragon{root: root, build: build} = dragon, [file | rest]) do
     src = Path.join(root, file)
     dst = Path.join(build, file)
