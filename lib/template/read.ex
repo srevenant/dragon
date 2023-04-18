@@ -1,5 +1,6 @@
 defmodule Dragon.Template.Read do
   use Dragon.Context
+  import Dragon.Tools.File
   import Dragon.Process.Data, only: [clean_data: 1]
 
   @moduledoc """

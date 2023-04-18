@@ -10,10 +10,7 @@ defmodule Dragon.Process.Data do
   def load_data(%Dragon{data: data} = dragon) when is_list(data),
     do: load_data(%Dragon{dragon | data: %{}}, data)
 
-  def load_data(x) do
-    IO.inspect(x, label: "Load data error")
-    abort("Unexpected error: invalid data config?")
-  end
+  def load_data(d), do: {:ok, %Dragon{d |data: %{}}}
 
   def get_into(dragon, %{into: into}), do: data_path(dragon.root, into)
   def get_into(_, _), do: nil

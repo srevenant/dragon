@@ -17,7 +17,7 @@ defmodule Dragon.Scss.Evaluate do
         {:ok, content} ->
           build_path = Path.join(d.build, drop_root(d.root, Path.rootname(path) <> ".css"))
           info([:light_black, "  Saving ", :reset, build_path])
-          Dragon.Tools.IO.write_file(build_path, content)
+          Dragon.Tools.File.write_file(build_path, content)
 
         {:error, reason} ->
           error("Error processing #{path}\n")

@@ -8,6 +8,40 @@ defmodule Dragon.Tools.File do
     with {:ok, _} <- :file.position(fd, offset), do: fd
   end
 
+  def open_file(path) do
+    case File.open(path, [:utf8, :read]) do
+      {:ok, fd} ->
+        {:ok, fd}
+
+      {:error, :enoent} ->
+        abort("Cannot open file '#{path}', cannot continue")
+
+      _err ->
+        # IO.puts("\n\n\n\nReminder: This often is a 'blame' which is breaking parsing the actual exception\n\n\n")
+        # IO.inspect(err, label: "File open error")
+        abort("Cannot open file, cannot continue")
+    end
+  end
+
+  def with_open_file(path, func) do
+    with {:ok, fd} <- open_file(path) do
+      try do
+        func.(fd)
+      after
+        :ok = File.close(fd)
+      end
+    end
+  end
+
+  def write_file(dest, content) do
+    Dragon.Tools.File.makedirs_for_file(dest)
+
+    case File.write(dest, content) do
+      :ok -> :ok
+      {:error, err} -> abort("Cannot write file '#{dest}': #{err}")
+    end
+  end
+
   def drop_root(root, path) do
     if String.slice(path, 0..(String.length(root) - 1)) == root do
       String.slice(path, (String.length(root) + 1)..-1)

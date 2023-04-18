@@ -106,7 +106,7 @@ defmodule Dragon.Template.Evaluate do
   ##############################################################################
   def commit_file({:ok, path, content}) do
     info([:light_black, "  Saving ", :reset, path])
-    Dragon.Tools.IO.write_file(path, content)
+    Dragon.Tools.File.write_file(path, content)
   end
 
   # side-effect execution frame state management
