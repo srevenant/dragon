@@ -25,11 +25,11 @@ defmodule Dragon.Template.Functions do
          {:ok, build} <- Dragon.get(:build) do
       build_target = (Path.split(build) ++ (drop_root(root, path) |> Path.split())) |> Path.join()
 
-      case File.regular?(build_target) do
-        # reformat as std URL, no wonky dos things
-        true -> "/#{Path.split(path) |> Enum.join("/")}"
-        false -> warn("<path check> #{path} (#{build_target}) is not a file")
+      ## TODO: create a post-process work queue of lambdas, and put this check there
+      if not File.regular?(build_target) do
+        warn("<path check> #{path} (#{build_target}) is not a file")
       end
+      "/#{Path.split(path) |> Enum.join("/")}"
     end
   end
 
