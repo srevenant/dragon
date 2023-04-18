@@ -25,11 +25,13 @@ defmodule Dragon.Data do
   ##############################################################################
   def load_data(%Dragon{} = dragon, [%{type: "file"} = args | rest]),
     do: Dragon.Data.File.load(dragon, args) |> load_data(rest)
-    #, fn dragon -> load_data(dragon, rest) end)
+
+  # , fn dragon -> load_data(dragon, rest) end)
 
   def load_data(%Dragon{} = dragon, [%{type: "collection"} = args | rest]),
     do: Dragon.Data.Collection.load(dragon, args) |> load_data(rest)
-    #, fn dragon -> load_data(dragon, rest) end)
+
+  # , fn dragon -> load_data(dragon, rest) end)
 
   def load_data(%Dragon{} = dragon, []),
     do: {:ok, %Dragon{dragon | data: Transmogrify.transmogrify(dragon.data)}}

@@ -52,11 +52,16 @@ defmodule Dragon.Template.Evaluate do
     processing(path, layout)
 
     with {:ok, content} <- read_template_body(path, offset),
-         {:ok, env} <- Dragon.Template.Env.get_for(path, headers, d, args),
+         {:ok, env} <- Dragon.Template.Env.get_for(path, :primary, headers, d, args),
          {:ok, output} <- evaluate_template(d, path, content, env),
-         {:ok, _, output} <-
-           include_file(Path.join(d.layouts, "_#{layout}"), d, :layout, content: output),
-         do: posteval(d, headers, path, output)
+         # posteval first, before insertion by layout; for markdown/etc
+         {:ok, target, headers, output} <- posteval(d, headers, path, output),
+         # then insert into layout
+         {:ok, _, _, output} <- include_file(Path.join(d.layouts, "_#{layout}"), d, :layout,
+             content: output,
+             parent: headers
+           ),
+           do: {:ok, target, headers, output}
   end
 
   def evaluate({:ok, headers, path, offset}, type, %Dragon{} = d, args) do
@@ -65,7 +70,7 @@ defmodule Dragon.Template.Evaluate do
     end
 
     with {:ok, content} <- read_template_body(path, offset),
-         {:ok, env} <- Dragon.Template.Env.get_for(path, headers, d, args),
+         {:ok, env} <- Dragon.Template.Env.get_for(path, type, headers, d, args),
          {:ok, output} <- evaluate_template(d, path, content, env),
          do: posteval(d, headers, path, output)
   end
@@ -92,9 +97,9 @@ defmodule Dragon.Template.Evaluate do
   def handle_non_template({:ok, _, _, _} = pass, _), do: pass
 
   ################################################################################
-  def validate({:ok, dst, content}) do
+  def validate({:ok, dst, headers, content}) do
     # future: scan html content for breaks
-    {:ok, dst, content}
+    {:ok, dst, headers, content}
   end
 
   ##############################################################################
@@ -104,9 +109,16 @@ defmodule Dragon.Template.Evaluate do
   end
 
   ##############################################################################
-  def commit_file({:ok, path, content}) do
+  def commit_file({:ok, path, headers, content}) do
     info([:light_black, "  Saving ", :reset, path])
-    Dragon.Tools.File.write_file(path, content)
+
+    file =
+      case headers do
+        %{"@spec": %{output: "folder/index"}} -> Path.join(Path.rootname(path), "index.html")
+        _ -> path
+      end
+
+    Dragon.Tools.File.write_file(file, content)
   end
 
   # side-effect execution frame state management
@@ -157,22 +169,7 @@ defmodule Dragon.Template.Evaluate do
 
     last = lineno + 2
 
-    IO.puts("\n")
-
-    IO.puts(
-      :stderr,
-      IO.ANSI.format([
-        :yellow,
-        "? ",
-        "#{path}:#{lineno}",
-        :reset,
-        " — ",
-        :yellow,
-        :bright,
-        msg,
-        "\n"
-      ])
-    )
+    stderr(["\n", :yellow, "? ", "#{path}:#{lineno}", :reset, " — ", :yellow, :bright, msg, "\n"])
 
     String.split(template, "\n")
     |> Enum.reduce_while(1, fn line, index ->

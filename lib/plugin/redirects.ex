@@ -9,6 +9,7 @@ defmodule Dragon.Plugin.Redirects do
       redirect_body("#{Path.join("/", drop_root(build, target)) |> Path.rootname()}/")
       |> create_redirects(build, redirects)
     end
+
     {:ok, target, content}
   end
 

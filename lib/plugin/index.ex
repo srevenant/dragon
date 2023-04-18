@@ -1,12 +1,20 @@
 defmodule Dragon.Plugin do
   use Dragon.Context
 
-  @callback run(Dragon.t(), originfile :: String.t(), buildfile :: String.t(), map(), content :: String.t()) ::
-              {:error, reason :: String.t()} | {:ok, buildfile :: String.t(), content :: String.t()}
+  @callback run(
+              Dragon.t(),
+              originfile :: String.t(),
+              buildfile :: String.t(),
+              headers :: map(),
+              content :: String.t()
+            ) ::
+              {:error, reason :: String.t()}
+              | {:ok, buildfile :: String.t(), content :: String.t()}
 
   # add other stages here as we need/want them
   def posteval(%Dragon{plugins: %{posteval: list}} = dragon, origin, target, headers, content)
-      when is_list(list), do: posteval(dragon, origin, target, headers, content, list)
+      when is_list(list),
+      do: posteval(dragon, origin, target, headers, content, list)
 
   def posteval(_, _, target, _, content), do: {:ok, target, content}
 
@@ -31,5 +39,5 @@ defmodule Dragon.Plugin do
     end
   end
 
-  def posteval(_, _, target, _, content, []), do: {:ok, target, content}
+  def posteval(_, _, target, h, content, []), do: {:ok, target, h, content}
 end

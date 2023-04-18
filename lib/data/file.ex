@@ -16,7 +16,8 @@ defmodule Dragon.Data.File do
     )
     |> case do
       {:error, msg} -> abort(msg)
-      %Dragon{} = dragon -> dragon # load_data(dragon, rest)
+      # load_data(dragon, rest)
+      %Dragon{} = dragon -> dragon
     end
   end
 

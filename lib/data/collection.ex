@@ -4,6 +4,26 @@ defmodule Dragon.Data.Collection do
   import Dragon.Tools.File, only: [drop_root: 2]
   import Dragon.Tools
 
+  defstruct src: nil,
+            dst: nil,
+            prev: nil,
+            next: nil,
+            title: nil,
+            date: nil,
+            date_t: 0,
+            date_modified: nil
+
+  @type t :: %__MODULE__{
+          src: nil | String.t(),
+          dst: nil | String.t(),
+          prev: nil | String.t(),
+          next: nil | String.t(),
+          title: nil | String.t(),
+          date: nil | DateTime.t(),
+          date_t: integer(),
+          date_modified: DateTime.t()
+        }
+
   def load(%Dragon{root: root} = dragon, %{type: "collection", path: path} = args) do
     fullpath = Path.join(root, path)
     into = get_into(dragon, args)
@@ -19,14 +39,15 @@ defmodule Dragon.Data.Collection do
           |> Enum.sort_by(& &1.date_t)
           |> Enum.reduce({nil, []}, fn
             elem, {nil, acc} -> {elem, [elem | acc]}
-            elem, {prev, acc} -> {elem, [%{elem | prev: prev.file} | acc]}
+            elem, {prev, acc} -> {elem, [%{elem | prev: prev.dst} | acc]}
           end)
           |> then(fn {p, list} -> list end)
           |> Enum.reduce({nil, []}, fn
             elem, {nil, acc} -> {elem, [elem | acc]}
-            elem, {prev, acc} -> {elem, [%{elem | next: prev.file} | acc]}
+            elem, {prev, acc} -> {elem, [%{elem | next: prev.dst} | acc]}
           end)
           |> then(fn {p, list} -> list end)
+          |> Enum.reverse()
 
         put_into(dragon, [:data] ++ into, data)
 
@@ -43,19 +64,20 @@ defmodule Dragon.Data.Collection do
 
       {:ok, header, _, _} ->
         with {:ok, meta} <- Dragon.Template.Env.get_file_metadata(path, header) do
-          # struct? Image data?
-          Map.merge(%{prev: nil, next: nil}, Map.take(meta, [:title, :date, :date_t, :date_modified]))
+          struct(__MODULE__, Map.take(meta, [:title, :date, :date_t, :date_modified]))
         end
     end
   end
 
   ##############################################################################
   defp reduce_collection_files(_, _, "index.html", acc), do: acc
+
   defp reduce_collection_files(full, base, file, acc) do
     target = Path.join(full, file)
-    localized = "/#{Path.join(base, file) |> Path.rootname()}/"
+    localized = "/#{Path.join(base, file) |> Path.rootname()}"
+
     if File.regular?(target) do
-      [file_details(target) |> Map.put(:file, localized) | acc]
+      [file_details(target) |> Map.merge(%{src: target, dst: localized}) | acc]
     else
       acc
     end

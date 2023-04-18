@@ -1,12 +1,12 @@
 defmodule Dragon.Template.Functions do
-  import Dragon.Tools.File, only: [drop_root: 2]
+  import Dragon.Tools.File, only: [drop_root: 2, find_file: 2]
   use Dragon.Context
 
   def include(path, args \\ []) do
     with {:ok, path} <- fix_relative_path(path) do
       case Dragon.Template.Evaluate.include_file(path, Dragon.get!(), :inline, args) do
         {:error, error} -> abort(error)
-        {:ok, _, content} -> content
+        {:ok, _, _, content} -> content
       end
     end
   end
@@ -29,14 +29,19 @@ defmodule Dragon.Template.Functions do
       if not File.regular?(build_target) do
         warn("<path check> #{path} (#{build_target}) is not a file")
       end
-      "/#{Path.split(path) |> Enum.join("/")}"
+
+      "/#{Path.split(path) |> Enum.join("/")}" |> one_slash()
     end
   end
 
+  defp one_slash(str), do: Regex.replace(~r|//+|, str, "/")
+
   def peek(path) do
     with {:ok, root} <- Dragon.get(:root),
+         {:ok, path} <- fix_relative_path(drop_root(root, path)),
+         {:ok, path} <- find_file(root, path),
          {:ok, header, _, _} <-
-           Dragon.Template.Read.read_template_header(Path.join(root, path)),
+           Dragon.Template.Read.read_template_header(path),
          do: Dragon.Data.clean_data(header)
   end
 

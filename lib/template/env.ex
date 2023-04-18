@@ -10,9 +10,15 @@ defmodule Dragon.Template.Env do
   @doc """
   Get env/context for a file
   """
-  def get_for(origin, header, dragon, args \\ []) do
+  def get_for(origin, type, header, dragon, args \\ []) do
     with {:ok, data} <- get_file_metadata(origin, header) do
       args = Map.new(args)
+
+      args =
+        case {type, args} do
+          {:layout, %{parent: parent}} -> Map.delete(args, :parent) |> Map.merge(parent)
+          _ -> args
+        end
 
       Map.get(data, :"@page", %{args: []})
       |> Map.get(:args, [])
