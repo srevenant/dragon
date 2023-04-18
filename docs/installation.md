@@ -4,7 +4,7 @@
 
 * Elixir
   - MacOS: `brew install elixir`
-* Http server
+* Http server (TEMPORARY)
 
   For the time being it temporarily uses an npm http server. Choose one:
 
@@ -46,8 +46,30 @@ See Installation.
 
 Use script `./start.sh` (modify to suit).
 
-Or run:
+Other direct commands:
 
-```
-mix build {target folder}
-```
+#### Build
+
+Standalone: `dragon build {target folder}`
+Mix Project: `mix dragon.build {target folder}`
+
+#### New
+
+Create a new project.
+
+Standalone: `dragon new {target folder}`
+Mix Project: `mix dragon.new {target folder}`
+
+#### Serve
+
+[WIP]
+
+Standalone: `dragon serve {target folder}`
+Mix Project: `mix dragon.serve {target folder}`
+
+#### Convert
+
+[WIP]
+
+Standalone: `dragon convert {target folder}`
+Mix Project: `mix dragon.convert {target folder}`
