@@ -28,7 +28,7 @@ defmodule Dragon.Template.Functions do
       case File.regular?(build_target) do
         # reformat as std URL, no wonky dos things
         true -> "/#{Path.split(path) |> Enum.join("/")}"
-        false -> abort("#{path} (#{dest}) is not a file")
+        false -> warn("<path check> #{path} (#{dest}) is not a file")
       end
     end
   end
