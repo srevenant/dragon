@@ -13,6 +13,9 @@ defmodule Dragon.Scss.Evaluate do
     with {:ok, path} <- find_file(d.root, file) do
       notify([:green, "SCSS ", :reset, :bright, path])
 
+      ## TODO: Make a runtime argument for adding this — this will minify
+      ## the CSS after its run. During a separate stage perhaps
+      # Sass.compile_file(path, %{output_style: Sass.sass_style_compressed})
       case Sass.compile_file(path) do
         {:ok, content} ->
           build_path = Path.join(d.build, drop_root(d.root, Path.rootname(path) <> ".css"))

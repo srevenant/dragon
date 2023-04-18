@@ -5,6 +5,7 @@
 - include file/title enrichment for all files, not just collections.
 - @spec.args: elements support dictionary/default key syntaxes for defaults
 - validation stage
+- add --minify flag which will run minification in the proper places
 - deploy stage
 - delayted work queue where lambdas or callbacks of some sort can be punted,
   and run after everything else is done (like for path validation warnings)
