@@ -16,9 +16,12 @@ defmodule Dragon.Tools.File do
       {:error, :enoent} ->
         abort("Cannot open file '#{path}', cannot continue")
 
-      _err ->
-        # IO.puts("\n\n\n\nReminder: This often is a 'blame' which is breaking parsing the actual exception\n\n\n")
-        # IO.inspect(err, label: "File open error")
+      {:error, :eisdir} ->
+        raise "narf"
+        abort("Cannot open file '#{path}', it is a folder. Cannot continue")
+
+      err ->
+        IO.inspect(err, label: "File open error")
         abort("Cannot open file, cannot continue")
     end
   end
@@ -64,20 +67,11 @@ defmodule Dragon.Tools.File do
   end
 
   def find_file(root, path) do
-    # case valid_part(root, path) do
-    #   {:file, path} ->
-    #     {:ok, path}
-    #
-    #   {:ok, path} ->
-    #     {:ok, path}
-    #
-    #   _ ->
     with :error <- find_file_variant(root, Path.split(path)),
          do: {:error, "File not found (#{Path.join(root, path)})"}
-
-    # end
   end
 
+  ## TODO: make "directory ok" flag
   def try_variant(root, part, rest, on_error \\ nil) do
     case {valid_part(root, part), rest} do
       {{:directory, _}, []} ->

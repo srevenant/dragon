@@ -1,14 +1,24 @@
 defmodule Dragon.Plugin.Redirects do
+  use Dragon.Context
+  import Dragon.Tools.File
   @behaviour Dragon.Plugin
 
   @impl Dragon.Plugin
-  def run(%Dragon{} = _d, path, %{redirect_from: _redirects}, content) do
-    # IO.inspect({path, redirects})
-    # scan headers & update
-    {:ok, path, content}
+  def run(%Dragon{} = _d, origin, target, %{redirect_from: redirects}, content) do
+    with {:ok, root} <- Dragon.get(:root), {:ok, build} <- Dragon.get(:build) do
+      drop_root(root, origin) |> create_redirects(build, redirects)
+    end
+    {:ok, target, content}
   end
 
-  def run(_, path, _, content), do: {:ok, path, content}
+  def run(_, _, target, _, content), do: {:ok, target, content}
+
+  defp create_redirects(target, build, [redirect | rest]) do
+    info([:light_black, "+ Redirect from ", :reset, :bright, redirect])
+    create_redirects(target, build, rest)
+  end
+
+  defp create_redirects(_, _, []), do: :ok
 
   #   with {:ok, file_paths_and_frontmatter} <- Utils.fast_get_frontmatters(file_paths) do
   #     file_paths_and_frontmatter

@@ -98,9 +98,9 @@ defmodule Dragon.Template.Evaluate do
   end
 
   ##############################################################################
-  def posteval(%{root: root, build: build} = d, headers, path, content) do
-    path = Path.join(build, Dragon.Tools.File.drop_root(root, path))
-    Dragon.Plugin.posteval(d, path, headers, content)
+  def posteval(%{root: root, build: build} = d, headers, origin, content) do
+    target = Path.join(build, Dragon.Tools.File.drop_root(root, origin))
+    Dragon.Plugin.posteval(d, origin, target, headers, content)
   end
 
   ##############################################################################

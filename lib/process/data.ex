@@ -10,7 +10,7 @@ defmodule Dragon.Process.Data do
   def load_data(%Dragon{data: data} = dragon) when is_list(data),
     do: load_data(%Dragon{dragon | data: %{}}, data)
 
-  def load_data(d), do: {:ok, %Dragon{d |data: %{}}}
+  def load_data(d), do: {:ok, %Dragon{d | data: %{}}}
 
   def get_into(dragon, %{into: into}), do: data_path(dragon.root, into)
   def get_into(_, _), do: nil
@@ -40,6 +40,16 @@ defmodule Dragon.Process.Data do
     end
   end
 
+  defp reduce_collection_files(_, "index.html", acc), do: acc
+  defp reduce_collection_files(base, file, acc) do
+    target = Path.join(base, file)
+    if File.regular?(target) do
+      [file_details(target) |> Map.put(:file, target) | acc]
+    else
+      acc
+    end
+  end
+
   def load_data(%Dragon{root: root} = dragon, [%{type: "collection", path: path} = args | rest]) do
     fullpath = Path.join(root, path)
     into = get_into(dragon, args)
@@ -50,10 +60,7 @@ defmodule Dragon.Process.Data do
 
         data =
           File.ls!(fullpath)
-          |> Enum.reduce([], fn file, acc ->
-            target = Path.join(fullpath, file)
-            [file_details(target) |> Map.put(:file, target) | acc]
-          end)
+          |> Enum.reduce([], &reduce_collection_files(fullpath, &1, &2))
           |> Enum.sort_by(& &1.date_t)
 
         # todo:

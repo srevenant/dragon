@@ -1,20 +1,20 @@
 defmodule Dragon.Plugin do
   use Dragon.Context
 
-  @callback run(Dragon.t(), path :: String.t(), map(), content :: String.t()) ::
-              {:error, reason :: String.t()} | {:ok, path :: String.t(), content :: String.t()}
+  @callback run(Dragon.t(), originfile :: String.t(), buildfile :: String.t(), map(), content :: String.t()) ::
+              {:error, reason :: String.t()} | {:ok, buildfile :: String.t(), content :: String.t()}
 
   # add other stages here as we need/want them
-  def posteval(%Dragon{plugins: %{posteval: list}} = dragon, path, headers, content)
+  def posteval(%Dragon{plugins: %{posteval: list}} = dragon, origin, target, headers, content)
       when is_list(list),
-      do: posteval(dragon, path, headers, content, list)
+      do: posteval(dragon, origin, target, headers, content, list)
 
-  def posteval(_, path, _, content), do: {:ok, path, content}
+  def posteval(_, _, target, _, content), do: {:ok, target, content}
 
   ##############################################################################
-  def posteval(d, p, h, c, [module | rest]) do
+  def posteval(d, o, t, h, c, [module | rest]) do
     try do
-      apply(module, :run, [d, p, h, c])
+      apply(module, :run, [d, o, t, h, c])
     rescue
       err ->
         error("Error while in plugin #{module}")
@@ -22,8 +22,8 @@ defmodule Dragon.Plugin do
         Kernel.reraise(err, __STACKTRACE__)
     end
     |> case do
-      {:ok, path, content} ->
-        posteval(d, path, h, content, rest)
+      {:ok, target, content} ->
+        posteval(d, o, target, h, content, rest)
 
       other ->
         error("Unexpected result from plugin:")
@@ -32,5 +32,5 @@ defmodule Dragon.Plugin do
     end
   end
 
-  def posteval(_, path, _, content, []), do: {:ok, path, content}
+  def posteval(_, _, target, _, content, []), do: {:ok, target, content}
 end
