@@ -56,7 +56,7 @@ defmodule Dragon.Template.Evaluate do
          {:ok, output} <- evaluate_template(d, path, content, env),
          {:ok, _, output} <-
            include_file(Path.join(d.layouts, "_#{layout}"), d, :layout, content: output),
-         do: postprocess(d, headers, path, output)
+         do: posteval(d, headers, path, output)
   end
 
   def evaluate({:ok, headers, path, offset}, type, %Dragon{} = d, args) do
@@ -67,7 +67,7 @@ defmodule Dragon.Template.Evaluate do
     with {:ok, content} <- read_template_body(path, offset),
          {:ok, env} <- Dragon.Template.Env.get_for(path, headers, d, args),
          {:ok, output} <- evaluate_template(d, path, content, env),
-         do: postprocess(d, headers, path, output)
+         do: posteval(d, headers, path, output)
   end
 
   def evaluate({:error, reason}, _, _, _), do: abort("Unable to continue: #{reason}")
@@ -98,9 +98,9 @@ defmodule Dragon.Template.Evaluate do
   end
 
   ##############################################################################
-  def postprocess(%{root: root, build: build} = d, headers, path, content) do
+  def posteval(%{root: root, build: build} = d, headers, path, content) do
     path = Path.join(build, Dragon.Tools.File.drop_root(root, path))
-    Dragon.Plugin.postprocess(d, path, headers, content)
+    Dragon.Plugin.posteval(d, path, headers, content)
   end
 
   ##############################################################################

@@ -9,7 +9,7 @@ defmodule Dragon do
   ]
 
   @always_plugins [
-    %{when: "postprocess", module: "Dragon.Plugin.Markdown"}
+    %{when: "posteval", module: "Dragon.Plugin.Markdown"}
   ]
 
   defstruct root: ".",
@@ -124,14 +124,14 @@ defmodule Dragon do
   end
 
   defp update_plugins(%Dragon{plugins: plugs} = d) when is_list(plugs),
-    do: %Dragon{d | plugins: prepare_plugins(plugs, %{postprocess: []})}
+    do: %Dragon{d | plugins: prepare_plugins(plugs, %{posteval: []})}
 
   defp prepare_plugins(
-         [%{when: "postprocess", module: name} | rest],
-         %{postprocess: list} = plugs
+         [%{when: "posteval", module: name} | rest],
+         %{posteval: list} = plugs
        ) do
     # TODO: check plugin module exists; put into struct
-    prepare_plugins(rest, %{plugs | postprocess: [String.to_atom("Elixir.#{name}") | list]})
+    prepare_plugins(rest, %{plugs | posteval: [String.to_atom("Elixir.#{name}") | list]})
   end
 
   defp prepare_plugins([nope | _], _) do
