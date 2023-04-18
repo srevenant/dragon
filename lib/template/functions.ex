@@ -37,7 +37,7 @@ defmodule Dragon.Template.Functions do
     with {:ok, root} <- Dragon.get(:root),
          {:ok, header, _, _} <-
            Dragon.Template.Read.read_template_header(Path.join(root, path)),
-         do: Dragon.Process.Data.clean_data(header)
+         do: Dragon.Data.clean_data(header)
   end
 
   def say(content) do

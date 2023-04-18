@@ -5,9 +5,9 @@ defmodule Dragon.Cli.Serve do
   import Rivet.Utils.Cli.Print
 
   def run(_optcfg, _opts, [target]), do: serve(target)
-  def run(optcfg, opts, _), do: syntax(optcfg, "serve {target} — No target specified")
+  def run(optcfg, _opts, _), do: syntax(optcfg, "serve {target} — No target specified")
 
-  def serve(target) do
+  def serve(_target) do
     stdout(["Coming soon: #{@moduledoc}"])
     :ok
   end

@@ -50,7 +50,7 @@ defmodule Dragon do
             |> update_paths(root)
             |> update_imports()
             |> update_plugins()
-            |> Dragon.Process.Data.load_data()
+            |> Dragon.Data.load_data()
 
           {:error, %{message: msg}} ->
             abort("Error reading Dragon Config (#{path}): #{msg}")

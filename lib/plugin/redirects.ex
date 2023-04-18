@@ -4,7 +4,7 @@ defmodule Dragon.Plugin.Redirects do
   @behaviour Dragon.Plugin
 
   @impl Dragon.Plugin
-  def run(%Dragon{} = _d, origin, target, %{redirect_from: redirects}, content) do
+  def run(%Dragon{} = _d, _origin, target, %{redirect_from: redirects}, content) do
     with {:ok, build} <- Dragon.get(:build) do
       redirect_body("#{Path.join("/", drop_root(build, target)) |> Path.rootname()}/")
       |> create_redirects(build, redirects)

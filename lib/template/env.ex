@@ -1,7 +1,7 @@
 defmodule Dragon.Template.Env do
   use Dragon.Context
   import Rivet.Utils.Time, only: [utc_offset: 1]
-  import Dragon.Process.Data, only: [clean_data: 1]
+  import Dragon.Data, only: [clean_data: 1]
 
   @moduledoc """
   """
