@@ -44,13 +44,14 @@ project folders into this, or create some other sort of command wrapper.
 
 See Installation.
 
-Use script `./start.sh` (modify to suit).
+Use script `./serve.sh {target folder}`
 
 Other direct commands:
 
 #### Build
 
 Standalone: `dragon build {target folder}`
+
 Mix Project: `mix dragon.build {target folder}`
 
 #### New
@@ -58,6 +59,7 @@ Mix Project: `mix dragon.build {target folder}`
 Create a new project.
 
 Standalone: `dragon new {target folder}`
+
 Mix Project: `mix dragon.new {target folder}`
 
 #### Serve
@@ -65,6 +67,7 @@ Mix Project: `mix dragon.new {target folder}`
 [WIP]
 
 Standalone: `dragon serve {target folder}`
+
 Mix Project: `mix dragon.serve {target folder}`
 
 #### Convert
@@ -72,4 +75,5 @@ Mix Project: `mix dragon.serve {target folder}`
 [WIP]
 
 Standalone: `dragon convert {target folder}`
+
 Mix Project: `mix dragon.convert {target folder}`
