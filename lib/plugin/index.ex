@@ -6,8 +6,7 @@ defmodule Dragon.Plugin do
 
   # add other stages here as we need/want them
   def posteval(%Dragon{plugins: %{posteval: list}} = dragon, origin, target, headers, content)
-      when is_list(list),
-      do: posteval(dragon, origin, target, headers, content, list)
+      when is_list(list), do: posteval(dragon, origin, target, headers, content, list)
 
   def posteval(_, _, target, _, content), do: {:ok, target, content}
 

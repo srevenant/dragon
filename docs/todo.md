@@ -6,6 +6,8 @@
 - @spec.args: elements support dictionary/default key syntaxes for defaults
 - validation stage
 - deploy stage
+- delayted work queue where lambdas or callbacks of some sort can be punted,
+  and run after everything else is done (like for path validation warnings)
 - parse more template errors/tracebacks and make them more human readable, like:
 
 ```

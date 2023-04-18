@@ -2,7 +2,7 @@ defmodule Dragon.Plugin.Markdown do
   @behaviour Dragon.Plugin
 
   @impl Dragon.Plugin
-  def run(_, _, path, _, content) do
+  def run(_, o, path, _, content) do
     case Path.extname(path) do
       ".md" ->
         newname = Path.rootname(path) <> ".html"

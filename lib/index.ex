@@ -140,5 +140,5 @@ defmodule Dragon do
     abort("Cannot continue")
   end
 
-  defp prepare_plugins([], out), do: out
+  defp prepare_plugins([], out), do: Map.new(out, fn {k, v} -> {k, Enum.reverse(v)} end)
 end
