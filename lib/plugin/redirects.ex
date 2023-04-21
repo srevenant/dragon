@@ -4,9 +4,14 @@ defmodule Dragon.Plugin.Redirects do
   @behaviour Dragon.Plugin
 
   @impl Dragon.Plugin
-  def run(%Dragon{} = _d, _origin, target, %{redirect_from: redirects}, content) do
+  def run(%Dragon{} = _d, _origin, target, %{redirect_from: redirects} = h, content) do
     with {:ok, build} <- Dragon.get(:build) do
-      redirect_body("#{Path.join("/", drop_root(build, target)) |> Path.rootname()}/")
+      target =
+        case h do
+          %{"@spec": %{output: "folder/index"}} -> Path.rootname(target)
+          _ -> Path.dirname(target)
+        end
+      redirect_body("#{Path.join("/", drop_root(build, target))}/")
       |> create_redirects(build, redirects)
     end
 
