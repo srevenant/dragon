@@ -1,6 +1,6 @@
 defmodule Dragon.Plugin do
   @moduledoc """
-  Dragon Plugin behavior.
+  Dragon Plugin behavior. See [Markdown](Dragon.Plugin.Markdown.html) and [Redirects](Dragon.Plugin.Redirects.html) plugins for examples.
   """
   use Dragon.Context
 

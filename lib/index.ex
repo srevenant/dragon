@@ -1,6 +1,6 @@
 defmodule Dragon do
   @moduledoc """
-  Dragon is meant to be run standalone. See README in root of project for full
+  Dragon is meant to be run standalone. See [README](https://github.com/srevenant/dragon) in root of project for full
   details on how it works.
   """
   use GenServer
