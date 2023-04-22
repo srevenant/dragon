@@ -1,10 +1,10 @@
 defmodule Dragon.Template.Evaluate do
   use Dragon.Context
-  import Dragon.Tools.File
+  import Dragon.Tools
   import Dragon.Template.Read
 
   @moduledoc """
-  Core bits for Template handling.
+  Core heart of evaluating EEX Templates.
 
   Although Dragon is a standalone genserver for its data, we still try to push
   the Dragon struct on the current processes' stack to keep data movement to
@@ -104,7 +104,7 @@ defmodule Dragon.Template.Evaluate do
 
   ##############################################################################
   def posteval(%{root: root, build: build} = d, headers, origin, content) do
-    target = Path.join(build, Dragon.Tools.File.drop_root(root, origin))
+    target = Path.join(build, Dragon.Tools.drop_root(root, origin))
     Dragon.Plugin.posteval(d, origin, target, headers, content)
   end
 
@@ -118,7 +118,7 @@ defmodule Dragon.Template.Evaluate do
         _ -> path
       end
 
-    Dragon.Tools.File.write_file(file, content)
+    Dragon.Tools.write_file(file, content)
   end
 
   # side-effect execution frame state management

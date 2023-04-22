@@ -1,4 +1,7 @@
 defmodule Dragon.Data do
+  @moduledoc """
+  Tools for loading data
+  """
   use Dragon.Context
 
   def clean_data(data),
@@ -15,10 +18,10 @@ defmodule Dragon.Data do
 
   ##############################################################################
   def data_path(root, path) do
-    Dragon.Tools.File.drop_root(root, path)
+    Dragon.Tools.drop_root(root, path)
     |> Path.rootname()
     |> Path.split()
-    |> Enum.reduce([], &(&2 ++ String.split(Dragon.Tools.File.export_fname(&1), ".")))
+    |> Enum.reduce([], &(&2 ++ String.split(Dragon.Tools.export_fname(&1), ".")))
     |> Transmogrify.transmogrify(%{value_convert: :atom, value_case: :snake})
   end
 

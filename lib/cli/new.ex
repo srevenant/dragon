@@ -1,5 +1,6 @@
 defmodule Dragon.Cli.New do
-  @moduledoc "Create a new Dragon Project"
+  @moduledoc false
+  #"Create a new Dragon Project"
   import Mix.Generator
   import Rivet.Utils.Cli
 

@@ -1,10 +1,11 @@
 defmodule Dragon.Template.Env do
+  @moduledoc """
+  Build "environment" for a file's EEX template execution.
+  """
   use Dragon.Context
   import Rivet.Utils.Time, only: [utc_offset: 1]
   import Dragon.Data, only: [clean_data: 1]
 
-  @moduledoc """
-  """
 
   ##############################################################################
   @doc """

@@ -1,4 +1,7 @@
 defmodule Dragon.Plugin.Markdown do
+  @moduledoc """
+  Dragon markdown plugin
+  """
   @behaviour Dragon.Plugin
 
   @impl Dragon.Plugin

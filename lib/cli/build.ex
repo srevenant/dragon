@@ -1,5 +1,6 @@
 defmodule Dragon.Cli.Build do
-  @moduledoc "Build a Dragon Project's content"
+  @moduledoc false
+  # "Build a Dragon Project's content"
 
   import Rivet.Utils.Cli
   import Rivet.Utils.Cli.Print
@@ -15,7 +16,7 @@ defmodule Dragon.Cli.Build do
 
     with {:ok, _} <- Dragon.startup(target),
          {:ok, dragon} <- Dragon.get(),
-         {:ok, dragon} <- Dragon.Process.Prepare.prepare_build(dragon) do
+         {:ok, dragon} <- Dragon.prepare_build(dragon) do
       Dragon.Scss.Evaluate.all(dragon)
       # do Dragon Template last so prior things can be generated, allowing the
       # 'path' function to properly find things

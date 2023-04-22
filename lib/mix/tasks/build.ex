@@ -1,6 +1,6 @@
 defmodule Mix.Tasks.Dragon.Build do
+  @moduledoc false
   @shortdoc "Build from templates"
-  @moduledoc @shortdoc
 
   use Mix.Task
 

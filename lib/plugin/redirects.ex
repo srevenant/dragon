@@ -1,6 +1,19 @@
 defmodule Dragon.Plugin.Redirects do
+  @moduledoc """
+  Dragon Redirect plugin.
+
+  To use, include in headermatter:
+
+  ```
+  redirect_from:
+    - /path-of-origin-link/
+  ```
+
+  And this plugin will create html redirects to the "current" file where the
+  redirects_from are located.
+  """
   use Dragon.Context
-  import Dragon.Tools.File
+  import Dragon.Tools
   @behaviour Dragon.Plugin
 
   @impl Dragon.Plugin

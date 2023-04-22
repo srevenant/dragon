@@ -1,4 +1,5 @@
 defmodule Dragon.Cli do
+  @moduledoc false
   @opts [
     switches: [],
     aliases: [],

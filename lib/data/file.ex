@@ -1,6 +1,9 @@
 defmodule Dragon.Data.File do
+  @moduledoc """
+  Tools for loading data files (yml)
+  """
   use Dragon.Context
-  import Dragon.Tools.File
+  import Dragon.Tools
   import Dragon.Tools
   import Dragon.Data, only: [get_into: 2, data_path: 2]
 

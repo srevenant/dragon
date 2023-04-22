@@ -1,6 +1,11 @@
 defmodule Dragon do
+  @moduledoc """
+  Dragon is meant to be run standalone. See README in root of project for full
+  details on how it works.
+  """
   use GenServer
   use Dragon.Context
+  import Dragon.Tools, only: [scan_file: 3, walk_tree: 3]
 
   @always_imports [
     "Dragon.Template.Functions",
@@ -40,7 +45,7 @@ defmodule Dragon do
   ##############################################################################
   @spec init(target :: String.t()) :: Dragon.t()
   def init(root) when is_binary(root) do
-    case Dragon.Tools.File.find_index_file(root, @config_file) do
+    case Dragon.Tools.find_index_file(root, @config_file) do
       {:ok, path} ->
         case YamlElixir.read_all_from_file(path) do
           {:ok, [%{"version" => 1.0} = config]} ->
@@ -141,4 +146,22 @@ defmodule Dragon do
   end
 
   defp prepare_plugins([], out), do: Map.new(out, fn {k, v} -> {k, Enum.reverse(v)} end)
+
+
+  ##############################################################################
+  def prepare_build(%Dragon{} = dragon) do
+    notify([:green, "Creating build folder: ", :reset, :bright, dragon.build])
+
+    case File.mkdir_p(dragon.build) do
+      {:error, reason} ->
+        abort("Unable to make build folder '#{dragon.build}': #{reason}")
+
+      :ok ->
+        nil
+    end
+
+    with %Dragon{} = dragon <- walk_tree(dragon, "", no_match: &scan_file/3),
+         do: Dragon.File.Synchronize.synchronize(dragon)
+  end
+
 end

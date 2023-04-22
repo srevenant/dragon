@@ -4,12 +4,12 @@ defmodule Dragon.MixProject do
   def project do
     [
       app: :dragon,
-      version: "0.1.0",
+      version: "1.0.0",
       elixir: "~> 1.14",
       description: "Content Management System",
-      # source_url
-      # docs
-      # package: package()
+      source_url: "https://github.com/srevenant/dragon",
+      docs: [main: "Dragon", source_ref: "master"],
+      package: package(),
       deps: deps(),
       start_permanent: Mix.env() == :prod,
       # test_coverage
@@ -45,10 +45,19 @@ defmodule Dragon.MixProject do
       {:jason, "~> 1.0"},
       {:sass, "~> 3.6.4"},
       {:phoenix_live_view, "~> 0.18.3"},
-      {:rivet_utils, "~> 1.1.5",
-       git: "https://github.com/srevenant/rivet-utils", branch: "master"},
+      {:rivet_utils, "~> 1.1.5"},
       {:transmogrify, "~> 1.1.1"},
-      {:yaml_elixir, "~> 2.8.0"}
+      {:yaml_elixir, "~> 2.8.0"},
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
+    ]
+  end
+
+  defp package() do
+    [
+      files: ~w(lib .formatter.exs mix.exs README* LICENSE*),
+      licenses: ["Apache-2.0"],
+      links: %{"GitHub" => "https://github.com/srevenant/dragon"},
+      source_url: "https://github.com/srevenant/dragon"
     ]
   end
 end

@@ -1,6 +1,6 @@
 defmodule Mix.Tasks.Dragon.Serve do
+  @moduledoc false
   @shortdoc "Run a development server for a Dragon Project"
-  @moduledoc @shortdoc
   use Mix.Task
 
   @impl true

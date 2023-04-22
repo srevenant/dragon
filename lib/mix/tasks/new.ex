@@ -1,6 +1,6 @@
 defmodule Mix.Tasks.Dragon.New do
+  @moduledoc false
   @shortdoc "Create a new Dragon Project"
-  @moduledoc @shortdoc
   use Mix.Task
 
   @impl true

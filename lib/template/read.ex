@@ -1,10 +1,11 @@
 defmodule Dragon.Template.Read do
-  use Dragon.Context
-  import Dragon.Tools.File
-  import Dragon.Data, only: [clean_data: 1]
-
   @moduledoc """
+  Reading data from a dragon template, considering separators.
   """
+
+  use Dragon.Context
+  import Dragon.Tools
+  import Dragon.Data, only: [clean_data: 1]
 
   ##############################################################################
   @spec read_template_header(file :: String.t()) ::
@@ -55,7 +56,7 @@ defmodule Dragon.Template.Read do
     {:ok,
      with_open_file(path, fn fd ->
        # Jump forward past the header
-       Dragon.Tools.File.seek!(fd, offset)
+       Dragon.Tools.seek!(fd, offset)
        |> IO.stream(:line)
        |> Enum.reduce_while([], &read_body/2)
      end)

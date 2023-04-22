@@ -1,6 +1,7 @@
-defmodule Dragon.Process.Synchronize do
+defmodule Dragon.File.Synchronize do
   @moduledoc """
   Lightweight file synchronizer.
+
   For performance, do not synchronize files to the build folder unless:
 
     * original timestamp is different
@@ -31,7 +32,7 @@ defmodule Dragon.Process.Synchronize do
   def synchronize(%Dragon{root: root, build: build} = dragon, [file | rest]) do
     src = Path.join(root, file)
     dst = Path.join(build, file)
-    Dragon.Tools.File.makedirs_for_file(dst)
+    Dragon.Tools.makedirs_for_file(dst)
 
     diff = file_difference(src, dst)
 

@@ -1,6 +1,6 @@
 defmodule Mix.Tasks.Dragon.Convert do
+  @moduledoc false
   @shortdoc "Convert a Jekyll Project to a Dragon Project"
-  @moduledoc @shortdoc
   use Mix.Task
 
   @impl true

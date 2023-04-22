@@ -1,7 +1,11 @@
 defmodule Dragon.Data.Collection do
+  @moduledoc """
+  Tools for loading data collections
+  """
+
   use Dragon.Context
   import Dragon.Data, only: [get_into: 2]
-  import Dragon.Tools.File, only: [drop_root: 2]
+  import Dragon.Tools, only: [drop_root: 2]
   import Dragon.Tools
 
   defstruct src: nil,
@@ -41,12 +45,12 @@ defmodule Dragon.Data.Collection do
             elem, {nil, acc} -> {elem, [elem | acc]}
             elem, {prev, acc} -> {elem, [%{elem | prev: prev.dst} | acc]}
           end)
-          |> then(fn {p, list} -> list end)
+          |> then(fn {_, list} -> list end)
           |> Enum.reduce({nil, []}, fn
             elem, {nil, acc} -> {elem, [elem | acc]}
             elem, {prev, acc} -> {elem, [%{elem | next: prev.dst} | acc]}
           end)
-          |> then(fn {p, list} -> list end)
+          |> then(fn {_, list} -> list end)
           |> Enum.reverse()
 
         put_into(dragon, [:data] ++ into, data)

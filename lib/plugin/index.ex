@@ -1,4 +1,7 @@
 defmodule Dragon.Plugin do
+  @moduledoc """
+  Dragon Plugin behavior.
+  """
   use Dragon.Context
 
   @callback run(

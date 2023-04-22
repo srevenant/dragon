@@ -1,10 +1,10 @@
 defmodule Dragon.Scss.Evaluate do
   @moduledoc """
-
+  Render SCSS
   """
 
   use Dragon.Context
-  import Dragon.Tools.File
+  import Dragon.Tools
 
   def all(%Dragon{files: %{scss: l}} = d), do: all(d, Map.keys(l))
   def all(d), do: {:ok, d}
@@ -20,7 +20,7 @@ defmodule Dragon.Scss.Evaluate do
         {:ok, content} ->
           build_path = Path.join(d.build, drop_root(d.root, Path.rootname(path) <> ".css"))
           info([:light_black, "  Saving ", :reset, build_path])
-          Dragon.Tools.File.write_file(build_path, content)
+          Dragon.Tools.write_file(build_path, content)
 
         {:error, reason} ->
           error("Error processing #{path}\n")
