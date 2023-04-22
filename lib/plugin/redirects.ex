@@ -24,6 +24,7 @@ defmodule Dragon.Plugin.Redirects do
           %{"@spec": %{output: "folder/index"}} -> Path.rootname(target)
           _ -> Path.dirname(target)
         end
+
       redirect_body("#{Path.join("/", drop_root(build, target))}/")
       |> create_redirects(build, redirects)
     end

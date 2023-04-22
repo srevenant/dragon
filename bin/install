@@ -1,0 +1,59 @@
+#!/bin/bash
+
+dest=$1
+shift
+
+mix=$(which mix)
+
+if ! which mix 1>/dev/null 2>&1; then
+  echo "Unable to find 'mix' — is Elixir installed?"
+  exit 1
+fi
+
+if [ ! -d "./lib/" -o ! -f "mix.exs" ]; then
+  echo "Must be run from root dragon folder, sorry!"
+  exit 1
+fi
+
+if [ -z "$dest" -o ! -d "$dest" ]; then
+  printf "Syntax: $0 {base folder target} [-y]\n\nTarget '$dest' is not a folder!\n\n"
+  exit 1
+fi
+
+cat <<END
+This installs dragon into:
+
+   $dest/bin/dragon # executable
+   $dest/share/dragon/ # library code
+
+END
+
+if [ "$1" != '-y' ]; then
+  echo -n "Continue? [y] "
+  read answer
+  if [ "$answer" != "" -a "$answer" != "y" -a "$answer" != "Y" ]; then
+    exit
+  fi
+fi
+
+set -e -o pipefail
+
+lib=$dest/share/dragon
+
+# eek
+rm -rf "$lib"
+mkdir -p "$lib"
+
+echo "installing into $lib..."
+tar -cf - --exclude .git --exclude _build --exclude deps . | tar -C $lib -xvf -
+echo "updating 'dragon' command..."
+sed -i '' -e 's!^.*@ROOT@!root="'$lib'"!' $lib/bin/dragon
+cd $dest/bin
+ln -sf $lib/bin/dragon
+
+echo "compiling ..."
+cd $lib
+pwd
+mix deps.get && mix compile
+
+echo "done!"

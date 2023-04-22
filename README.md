@@ -6,10 +6,11 @@
 <img src="docs/dragon-w500.webp" alt="Dragon Mascot">
 </div>
 
-___ALPHA - WORK IN PROGRESS___
+___BETA___ — fairly feature complete, but needs some sea trials. See the [TODO](docs/todo.md) for more info.
 
 Dragon is a content management system similar to Jekyll, but using Elixir and
-EEX templates, along with some improvements to behavior. It is the static-site
+EEX templates, along with some improvements to behavior
+(queue [xkcd comic](https://xkcd.com/927/)). It is the static-site
 generator counterpoint to the Elixir Phoenix appserver.
 
 If you are familiar with Jekyll, you should be able to migrate fairly easily.

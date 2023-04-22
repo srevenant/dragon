@@ -190,13 +190,18 @@ defmodule Dragon.Tools do
     end
   end
 
-
   @doc """
-  Within walk_tree, investigate a file to determin what its type is and store
+  Within walk_tree, investigate a file to determine what its type is and store
   accordingly. If it begins with the dragon header, consider it a dragon
   template. Otherwise look at the file extension.
   """
-  def scan_file(dragon, path, _args) do
+  def scan_file(dragon, path, _) do
+    with {:ok, type, rel_path} <- file_type(path) do
+      put_into(dragon, [:files, type, rel_path], [])
+    end
+  end
+
+  def file_type(path) do
     type =
       with_open_file(path, fn fd ->
         case IO.binread(fd, 10) do
@@ -214,6 +219,12 @@ defmodule Dragon.Tools do
     [_ | rel_path] = Path.split(path)
     rel_path = Path.join(rel_path)
 
-    put_into(dragon, [:files, type, rel_path], [])
+    {:ok, type, rel_path}
+  end
+
+  # need an os-agnostic way to do this
+  def get_true_path(path) do
+    with {p, 0} <- System.cmd("sh", ["-c", "cd #{path}; /bin/pwd -P"]),
+         do: {:ok, String.trim(p)}
   end
 end

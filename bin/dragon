@@ -1,0 +1,41 @@
+#!/bin/bash
+
+root="." # @ROOT@
+
+cmd="$1"
+target="$2"
+
+owd=$(pwd)
+
+syntax="Syntax: $0 {cmd} {target}\n\ncommands: build serve convert new\n\n"
+if [ -z "$target" -o ! -d "$target" ]; then
+  printf "${syntax}Cannot find target $target!\n"
+  exit 1
+fi
+
+runcmd () {
+  local cmd="$1"
+  local target="$2"
+  shift
+  shift
+  mix dragon.$cmd "$target" "$@"
+}
+
+if [ "$root" != "." ]; then
+  base=$(basename "$target")
+  if [ -e "$root/$base" -a ! -L "$root/$base" ]; then
+    printf "${syntax}Cannot use target '$target' because it conflicts with a file in dragon's root folder ($root)\n"
+    exit 1
+  fi
+
+  origin=$(cd "$target" && pwd)
+  if [ -z "$origin" ]; then
+    printf "${syntax}Unable to determine absolute path to target folder\n"
+    exit 1
+  fi
+
+  # echo "$origin"
+  cd "$root" && rm -f "$target" && ln -s "$origin" && runcmd "$@"
+else
+  runcmd "$@"
+fi

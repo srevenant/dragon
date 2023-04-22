@@ -1,4 +1,3 @@
-- builtin file watcher with phoenix serving files
 - eex filter for data (along the lines of markdownify)
 - ? opinionated use of dashes or underbars in filenames. Probably underbar so it's
   consistent with vars.

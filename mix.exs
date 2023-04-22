@@ -4,7 +4,7 @@ defmodule Dragon.MixProject do
   def project do
     [
       app: :dragon,
-      version: "1.0.0",
+      version: "1.0.1",
       elixir: "~> 1.14",
       description: "Content Management System",
       source_url: "https://github.com/srevenant/dragon",
@@ -14,8 +14,7 @@ defmodule Dragon.MixProject do
       start_permanent: Mix.env() == :prod,
       # test_coverage
       elixirc_paths: elixirc_paths(Mix.env()),
-      aliases: aliases(),
-      escript: escript()
+      aliases: aliases()
     ]
   end
 
@@ -35,18 +34,17 @@ defmodule Dragon.MixProject do
     ]
   end
 
-  def escript() do
-    [main_module: Dragon.Cli]
-  end
-
   defp deps do
     [
       {:earmark, "~> 1.4.34"},
       {:jason, "~> 1.0"},
       {:sass, "~> 3.6.4"},
-      {:phoenix_live_view, "~> 0.18.3"},
+      {:plug, "~> 1.14.2"},
+      {:bandit, "~> 0.7.7"},
+      {:plug_cowboy, "~> 2.6.1"},
       {:rivet_utils, "~> 1.1.5"},
       {:transmogrify, "~> 1.1.1"},
+      {:file_system, "~> 0.2"},
       {:yaml_elixir, "~> 2.8.0"},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]

@@ -57,11 +57,12 @@ defmodule Dragon.Template.Evaluate do
          # posteval first, before insertion by layout; for markdown/etc
          {:ok, target, headers, output} <- posteval(d, headers, path, output),
          # then insert into layout
-         {:ok, _, _, output} <- include_file(Path.join(d.layouts, "_#{layout}"), d, :layout,
+         {:ok, _, _, output} <-
+           include_file(Path.join(d.layouts, "_#{layout}"), d, :layout,
              content: output,
              parent: headers
            ),
-           do: {:ok, target, headers, output}
+         do: {:ok, target, headers, output}
   end
 
   def evaluate({:ok, headers, path, offset}, type, %Dragon{} = d, args) do

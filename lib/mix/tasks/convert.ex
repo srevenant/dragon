@@ -4,6 +4,6 @@ defmodule Mix.Tasks.Dragon.Convert do
   use Mix.Task
 
   @impl true
-  def run([target]), do: Dragon.Cli.Convert.convert(target)
+  def run([_target]), do: IO.puts("Coming soon")
   def run(_), do: IO.puts("Syntax: mix dragon.convert {target}")
 end

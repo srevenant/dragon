@@ -4,32 +4,27 @@
 
 * Elixir
   - MacOS: `brew install elixir`
-* Http server (TEMPORARY)
-
-  For the time being it temporarily uses an npm http server. Choose one:
-
-  ```
-  brew install http-server
-  ```
-  or
-  ```
-  yarn global add http-server
-  ```
+  - Linux: ...
+  - Windows: ... ([see notes!](windows-notes.md))
 
 You can run it in one of two ways: Standalone and Mix Project
 
 ### Standalone / Global app
 
-From within cloned dragon repo:
+Note: If you are curious about escript vs this install, [see Developer Notes](developer-notes.md).
+
+To install as a standalone app, run:
 
 ```
-mix deps.get
-mix escript.install
+./bin/install /usr/local
 ```
 
-Then you run the command 'dragon' wherever you are.
+With that, you can then run the command 'dragon' wherever you are. This is only
+for one user, and doesn't support multi-user setups.
 
 ### Mix Project (Elixir)
+
+To run it locally as a mix project, just run:
 
 ```
 mix deps.get
@@ -40,40 +35,29 @@ With this setup you must run `mix` instead of `dragon` and you have
 to stay within the same dragon repo folder.  You can symlink your
 project folders into this, or create some other sort of command wrapper.
 
-### Running as a command
+### File watching server
 
-See Installation.
+This will run a server on port 5000, which watches for changes and updates
+as necessary: `dragon serve {target folder}` example:
 
-Use script `./serve.sh {target folder}`
-
-Other direct commands:
+```
+dragon serve folder/path
+```
 
 #### Build
 
-Standalone: `dragon build {target folder}`
+To just do a single build pass: `dragon build {target folder}` example:
 
-Mix Project: `mix dragon.build {target folder}`
+```
+dragon build my.site.folder
+```
+
+Where my.site.folder is local to where you are running the command.
 
 #### New
 
-Create a new project.
-
-Standalone: `dragon new {target folder}`
-
-Mix Project: `mix dragon.new {target folder}`
-
-#### Serve
-
-[WIP]
-
-Standalone: `dragon serve {target folder}`
-
-Mix Project: `mix dragon.serve {target folder}`
+Create a new project: `dragon new {target folder}`
 
 #### Convert
 
-[WIP]
-
-Standalone: `dragon convert {target folder}`
-
-Mix Project: `mix dragon.convert {target folder}`
+Future: A script to do some initial conversion of Jekyll projects to Dragon.

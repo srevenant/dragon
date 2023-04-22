@@ -6,7 +6,6 @@ defmodule Dragon.Template.Env do
   import Rivet.Utils.Time, only: [utc_offset: 1]
   import Dragon.Data, only: [clean_data: 1]
 
-
   ##############################################################################
   @doc """
   Get env/context for a file

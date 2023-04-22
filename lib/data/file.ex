@@ -17,11 +17,6 @@ defmodule Dragon.Data.File do
       follow_meta: true,
       prefix: prefix
     )
-    |> case do
-      {:error, msg} -> abort(msg)
-      # load_data(dragon, rest)
-      %Dragon{} = dragon -> dragon
-    end
   end
 
   ##############################################################################

@@ -13,6 +13,11 @@ Dragon works on stages:
 5. __Postprocess__ — [WIP] Scan all files in build folder and validate/cleanup/minify as appropriate based on content type.
 6. __Deploy__ — [Future] integration with deployment. First: S3 for CDN's
 
+## Escript
+
+Dragon was initially build as an Escript application. However, Escript apps do
+not support NIFs (native compiled code), which is used by the Scss library, meaning
+we had to find another solution.
 
 ## Plugins
 
