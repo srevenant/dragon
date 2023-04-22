@@ -36,6 +36,10 @@ Additional topics:
 * [Contributors](docs/contributors.md)
 * [Developer Notes](docs/developer-notes.md)
 
+## Example:
+
+<img src="docs/example.webp" alt="Example">
+
 ## FAQ
 
 #### Aren't Static CMS's dead?
