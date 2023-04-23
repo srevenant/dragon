@@ -86,11 +86,15 @@ See also: [Example](../example/)
         is a path, which is _RELATIVE TO THE CURRENT FILE_ unless you begin it
         with a slash. If it begins with a slash, it is then resolved based on
         the base of the project instead (an absolute path rather than relative).
+
+        Remember: metafiles (beginning with an underscore) are ignored unless
+        included through some means such as this, so you can place these within
+        your build tree without concern.
       - `path` — a function that verifies files exist in the build folder, and
         converts them to the absolute version of the file using the same logic
         as is used with include.
       - `markdownify` — convert a string to html.
-      - `peek` — load the headermatter of a target dragon template 
+      - `peek` — load the headermatter of a target dragon template
 
 - ___Elixir/EEX Template imports___ You can include additional standard elixir
   modules modules through the dragon config variable `imports:` which takes
