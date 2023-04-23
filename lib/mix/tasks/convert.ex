@@ -117,14 +117,13 @@ defmodule Mix.Tasks.Dragon.Convert do
           Enum.join(rest, " ")
 
         ["for" | rest] ->
-          case Enum.split_with(rest, &(&1 == "in")) do
-            {x, y} ->
-              "for #{Enum.join(x)} <- #{Enum.join(y)} do"
+          body =
+            Enum.map(rest, fn
+              "in" -> "<-"
+              x -> x
+            end)
 
-            _ ->
-              "for #{Enum.join(rest)} do"
-              |> tap(&IO.puts(">>> MISSED: #{&1}"))
-          end
+          "for #{Enum.join(body, " ")} do"
 
         ["include", file | rest] ->
           args =
