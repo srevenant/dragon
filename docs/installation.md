@@ -60,4 +60,13 @@ Create a new project: `dragon new {target folder}`
 
 #### Convert
 
-Future: A script to do some initial conversion of Jekyll projects to Dragon.
+Convert a Jekyll project: `dragon convert {target folder}`
+
+Notes: This only does a few things to make it slightly easier:
+
+* converts any '---' template into '--- dragon-1.0' template header
+* makes a ham-fisted stab at converting liquid to eex — you WILL need to still review & cleanup
+* moves _includes to _lib
+* moves _layouts to _lib/layout
+* converts `layout: XX` in header matter to `@spec:\n  layout: XX.html`
+* moves Jekyll's _config.yml to _lib/site.yml
