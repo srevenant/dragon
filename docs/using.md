@@ -37,10 +37,15 @@ See also: [Example](../example/)
     `.html`, `.txt`, or others as appropriate.
 
 - ___Data___ —
-  - Data imports are specified in the dragon config file, and may be one of two types: _file_ (yml) and _collection_ (future: _ecto_).
-  - __File__ data targets should be folders. All yml file contents are loaded into the dragon context,
-    matching file/folder heirarchy to a deep-map structure. Location within the context
-    is assigned in the data specification.
+  - Data imports are specified in the dragon config file, and may be one of two
+    types: _file_ (yml) and _collection_ (future: _ecto_).
+  - __File__ data targets should be folders. All yml, yaml, and json files' contents
+    are loaded into the dragon context, matching file/folder hierarchy to a
+    deep-map structure. Location within the context is assigned in the data
+    specification.
+
+    If you have a lot of data, it's suggested to save it as json rather than
+    yaml as it will load faster.
   - __Collection__ data targets are folders, where each file represents a timestamped
     file in a collective set (such as blog posts) (see Templates for info on
     file metadata). Collections are enumerated and in sorted order.
@@ -62,7 +67,6 @@ See also: [Example](../example/)
   - Data passed as arguments to an include are available in `@page.{..}`
   - Similar to Jekyll header matter is YML syntax.
   - Known header matter values:
-
     - `date:` — publish date (ISO 8601 syntax) — if unspecified, the date is
       taken from the filename, or if no date is in the filename, it is taken
       from the file's creation time.
@@ -75,3 +79,20 @@ See also: [Example](../example/)
       - `layout:` — A layout file for the template. The template is included within
         the layout file, referenced as `@page.content`. Templates are located
         in the folder specified in the dragon config file as `layouts`.
+  - __Helper Functions__ — A few functions are provided in addition to standard
+    elixir:
+      - `include` — at the heart of the template is being able to merge multiple
+        files into one. This uses the `include` helper function. The first argument
+        is a path, which is _RELATIVE TO THE CURRENT FILE_ unless you begin it
+        with a slash. If it begins with a slash, it is then resolved based on
+        the base of the project instead (an absolute path rather than relative).
+      - `path` — a function that verifies files exist in the build folder, and
+        converts them to the absolute version of the file using the same logic
+        as is used with include.
+      - `markdownify` — convert a string to html.
+      - `peek` — load the headermatter of a target dragon template 
+
+- ___Elixir/EEX Template imports___ You can include additional standard elixir
+  modules modules through the dragon config variable `imports:` which takes
+  a list of module names. At this time you cannot import custom modules
+  without adding it to the Dragon lib folder.

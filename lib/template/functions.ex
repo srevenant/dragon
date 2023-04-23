@@ -48,15 +48,11 @@ defmodule Dragon.Template.Functions do
          do: Dragon.Data.clean_data(header)
   end
 
-  def say(content) do
-    IO.inspect(content, label: "SAY")
-  end
+  defp fix_relative_path("/" <> path), do: {:ok, path}
 
-  defp fix_relative_path("./" <> path) do
+  defp fix_relative_path(path) do
     with %{this: parent} <- Dragon.frame_head(), {:ok, root} <- Dragon.get(:root) do
       {:ok, drop_root(root, parent) |> Path.dirname() |> Path.join(path)}
     end
   end
-
-  defp fix_relative_path(path), do: {:ok, path}
 end

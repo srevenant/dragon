@@ -138,8 +138,11 @@ defmodule Dragon do
     do: %Dragon{d | root: root, build: Path.join(root, build)}
 
   defp update_imports(%Dragon{imports: imports} = d) when is_list(imports) do
-    ## todo: Make this a reduce and remove dups
-    imports = Enum.map(imports, &"import #{&1}") |> Enum.join(";")
+    imports =
+      MapSet.new(@always_imports ++ imports)
+      |> MapSet.to_list()
+      |> Enum.map(&"import #{&1}")
+      |> Enum.join(";")
 
     %Dragon{d | imports: "<% #{imports} %>\n"}
   end

@@ -13,7 +13,7 @@ defmodule Dragon.Data.File do
     prefix = get_into(dragon, args)
 
     walk_tree(dragon, path,
-      match: %{"yml" => &load_data_file/3, "yaml" => &load_data_file/3},
+      match: %{~r/\.(ya?ml|json)$/ => &load_data_file/3},
       follow_meta: true,
       prefix: prefix
     )
@@ -52,10 +52,16 @@ defmodule Dragon.Data.File do
       :light_black,
       " into data path: ",
       :light_blue,
+      "@",
       Enum.join(datapath, ".")
     ])
 
-    case YamlElixir.read_all_from_file(path) do
+    case Path.extname(path) do
+      ".json" -> File.read!(path) |> Jason.decode()
+      ".yml" -> YamlElixir.read_all_from_file(path)
+      ".yaml" -> YamlElixir.read_all_from_file(path)
+    end
+    |> case do
       # single map
       {:ok, [data]} ->
         put_into(dragon, [:data | datapath], data)
@@ -64,8 +70,11 @@ defmodule Dragon.Data.File do
       {:ok, [_ | _] = list} ->
         put_into(dragon, [:data | datapath], list)
 
+      {:ok, data} when is_map(data) ->
+        put_into(dragon, [:data | datapath], data)
+
       error ->
-        IO.inspect(error, label: "Error parsing YAML")
+        IO.inspect(error, label: "Error parsing Data")
         abort("Cannot continue")
     end
   end

@@ -65,10 +65,10 @@ defmodule Mix.Tasks.Dragon.New do
   <meta property="og:title" content="<%%= @site.name %>" />
   <meta name="og:type" content="website" />
   <title><%%= @site.name %></title>
-  <link rel="icon" href="<%%= path "assets/img/favicon.svg" %> ">
-  <link rel="stylesheet" href="<%%= path "assets/css/main.css" %>">
-  <link rel="stylesheet" href="<%%= path "assets/css/plain.css" %>">
-  <script defer src="<%%= path "assets/js/index.js" %>"></script>
+  <link rel="icon" href="<%%= path "/assets/img/favicon.svg" %> ">
+  <link rel="stylesheet" href="<%%= path "/assets/css/main.css" %>">
+  <link rel="stylesheet" href="<%%= path "/assets/css/plain.css" %>">
+  <script defer src="<%%= path "/assets/js/index.js" %>"></script>
   </head>
   """)
 
@@ -110,12 +110,12 @@ defmodule Mix.Tasks.Dragon.New do
   --- eex
   <!DOCTYPE html>
   <html lang="en">
-  <%%= include "lib/head.html" %>
+  <%%= include "/lib/head.html" %>
   <body id="body" class="light flex flex-column navbar-offset">
-  <%%= include "lib/navbar.html" %>
+  <%%= include "/lib/navbar.html" %>
   <%%= @page.content %>
   <div class="flex-grow-1"></div>
-  <%%= include "lib/footer.html" %>
+  <%%= include "/lib/footer.html" %>
   </body>
   </html>
   """)

@@ -57,8 +57,16 @@ defmodule Mix.Tasks.Dragon.Convert do
     safe_mvdir(p.("_includes"), p.("_lib"))
     safe_mvdir(p.("_layouts"), p.(Path.join("_lib", "_layout")))
 
-    if File.exists?(p.("_config.yml")),
-      do: :ok = File.rename(p.("_config.yml"), p.(Path.join("_lib", "_site.yml")))
+    create_directory(p.("_data"))
+    jekyll_cfg = p.("_config.yml")
+    target_site = p.(Path.join("_data", "_site.yml"))
+    if File.exists?(jekyll_cfg) do
+      if File.exists?(target_site) do
+        warn("Cannot move #{jekyll_cfg} to #{target_site}: already exists")
+      else
+        :ok = File.rename(p.("_config.yml"), p.(Path.join("_data", "_site.yml")))
+      end
+    end
 
     walk_tree(dragon, target, follow_meta: true, no_match: &handle_file/3)
 

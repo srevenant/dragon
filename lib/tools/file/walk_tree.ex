@@ -2,7 +2,7 @@ defmodule Dragon.Tools.File.WalkTree.NoMatch do
   use Dragon.Context
 
   def no_match(dragon, path, _) do
-    info("Ignoring file '#{path}'")
+    info("Ignoring file: #{path}")
     dragon
   end
 end
@@ -52,7 +52,7 @@ defmodule Dragon.Tools.File.WalkTree do
         dragon
 
       ignore_file?(fname, opts.ignore) ->
-        stderr([:light_black, "Ignoring file #{fname}"])
+        stderr([:light_black, "Ignoring file: #{fname}"])
         dragon
 
       true ->

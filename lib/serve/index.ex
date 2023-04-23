@@ -12,8 +12,7 @@ defmodule Dragon.Serve do
     Logger.configure(level: :info)
 
     # build once first, which also configures Dragon
-    with {:ok, _} <- Dragon.configure(target),
-         {:ok, _} <- Dragon.Slayer.build(:all, target),
+    with {:ok, _} <- Dragon.Slayer.build(:all, target),
          {:ok, _} <- Dragon.Serve.Watcher.start() do
       server = {Bandit, plug: Dragon.Serve.Plug.Files, scheme: :http, port: port}
       {:ok, _} = Supervisor.start_link([server], strategy: :one_for_one)
