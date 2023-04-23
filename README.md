@@ -10,7 +10,7 @@ ___BETA___ — fairly feature complete, but needs some sea trials. See the [TOD
 
 Dragon is a content management system similar to Jekyll, but using Elixir and
 EEX templates, along with some improvements to behavior
-(queue [xkcd comic](https://xkcd.com/927/)). It is the static-site
+(cue [xkcd comic](https://xkcd.com/927/)). It is the static-site
 generator counterpoint to the Elixir Phoenix appserver.
 
 If you are familiar with Jekyll, you should be able to migrate fairly easily.

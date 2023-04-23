@@ -132,7 +132,7 @@ defmodule Mix.Tasks.Dragon.Convert do
             |> Enum.filter(&(&1 != ""))
             |> Enum.map(&String.replace(&1, "=", ": "))
 
-          "include " <> Enum.join(["\"#{file}\""] ++ args, ", ")
+          "include " <> Enum.join(["\"_lib/#{file}\""] ++ args, ", ")
 
         ["else" | _] ->
           "else"

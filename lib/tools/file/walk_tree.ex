@@ -37,7 +37,14 @@ defmodule Dragon.Tools.File.WalkTree do
   def walk_tree_(%{root: root} = dragon, path, opts) when is_binary(path) and is_map(opts) do
     fname = Path.basename(path)
     first = String.at(fname, 0)
-    in_meta = first == "_"
+
+    in_meta =
+      if opts.in_meta do
+        true
+      else
+        first == "_"
+      end
+
     opts = Map.put(opts, :in_meta, in_meta)
 
     cond do
