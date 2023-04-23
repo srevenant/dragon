@@ -24,7 +24,9 @@ Benefits of Dragon:
   file, the rest of it is up to how you configure your project.
 * Relative includes! No need for files scattered all over in include folders,
   just include it from your local path. You can still use library folders if you
-  so desire, in any location you choose.
+  so desire, in any location you choose (starting an included file with a slash
+  resolves that file based on the project root, rather than relatively to the
+  current file).
 
 For more information see: [Using](docs/using.md).
 
