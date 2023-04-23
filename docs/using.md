@@ -49,6 +49,14 @@ See also: [Example](../example/)
   - __Collection__ data targets are folders, where each file represents a timestamped
     file in a collective set (such as blog posts) (see Templates for info on
     file metadata). Collections are enumerated and in sorted order.
+  - If you are used to using dot-syntax data paths these still work, except
+    if the data path is not there. While in jekyll this would result in a null
+    value, in elixir it will create an error.
+
+    However, you can use the index operator instead, which can resolve against
+    a nil value. So if your data tree might have `x.y.z` but `y` is undefined,
+    and this causes an error. Instead you can use `x[:y][:z]` to get the same
+    behavior as before.
 
 - ___Templates___ —
   - Any file can be a template, if it begins with `--- dragon-1.0`

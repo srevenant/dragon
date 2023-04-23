@@ -60,6 +60,7 @@ defmodule Mix.Tasks.Dragon.Convert do
     create_directory(p.("_data"))
     jekyll_cfg = p.("_config.yml")
     target_site = p.(Path.join("_data", "_site.yml"))
+
     if File.exists?(jekyll_cfg) do
       if File.exists?(target_site) do
         warn("Cannot move #{jekyll_cfg} to #{target_site}: already exists")
@@ -86,43 +87,34 @@ defmodule Mix.Tasks.Dragon.Convert do
 
   defp convert_line(line, {where, buf}), do: {where, [convert_liquid(line) | buf]}
 
-  # Todo: could get more complex regexes that are intelligent about start/end of
-  # template expressions and then also convert the expression and also some
-  # keywords to assigns:
-  #
-  #    page -> @page
-  #    include file/name args=args -> include "file.name", args: args
-  #
-
   defp convert_liquid(line) do
     line
-    |> String.replace(~r/-[%}]}/, "%}")
+    |> String.replace(~r/\s*-?[%}]}/, "%}")
+    |> String.replace(~r/{[%{]-?\s*/, "{%")
     |> match_expression()
-    |> String.replace(~r/{[%{]-?/, "<%=")
-    |> String.replace(~r/-?[%}]}/, "%>")
-    |> String.replace(~r/<%=\s*end(if|for)\s+/, "<% end ")
   end
 
-  defp match_expression(line),
-    do: Regex.replace(~r/{%-?\s*([^%-]+)\s*-?%}/u, line, &convert_expression/2, global: true)
+  def match_expression(line),
+    do: Regex.replace(~r/{%(.+?(?=%}))%}/u, line, &convert_expression/2, global: true)
 
-  defp convert_expression(_, expr) do
+  def convert_expression(_, expr) do
     fixed =
       case String.split(expr, " ") do
         ["if" | rest] ->
-          "if #{Enum.join(rest, " ")} do"
+          "= if #{Enum.join(rest, " ")} do"
+          |> String.replace(~r/^= if (page|site)/, "= if @\\1")
 
         ["else", "if" | rest] ->
           warn("WARNING: else if conversion does not add an extra 'end' in the template")
-          "else if #{Enum.join(rest, " ")} do"
+          "= else if #{Enum.join(rest, " ")} do"
 
         # this isn't even right but it's out there...
         ["elsif" | rest] ->
           warn("WARNING: else if conversion does not add an extra 'end' in the template")
-          "else if #{Enum.join(rest, " ")} do"
+          "= else if #{Enum.join(rest, " ")} do"
 
         ["assign" | rest] ->
-          Enum.join(rest, " ")
+          " " <> Enum.join(rest, " ")
 
         ["for" | rest] ->
           body =
@@ -131,7 +123,7 @@ defmodule Mix.Tasks.Dragon.Convert do
               x -> x
             end)
 
-          "for #{Enum.join(body, " ")} do"
+          "= for #{Enum.join(body, " ")} do"
 
         ["include", file | rest] ->
           args =
@@ -139,25 +131,26 @@ defmodule Mix.Tasks.Dragon.Convert do
             |> Enum.filter(&(&1 != ""))
             |> Enum.map(&String.replace(&1, "=", ": "))
 
-          "include " <> Enum.join(["\"_lib/#{file}\""] ++ args, ", ")
+          "= include " <> Enum.join(["\"/_lib/#{file}\""] ++ args, ", ")
 
         ["else" | _] ->
-          "else"
+          " else"
 
         ["endif" | _] ->
-          "end"
+          " end"
 
         ["endfor" | _] ->
-          "end"
+          " end"
 
         miss ->
-          IO.inspect(miss)
-
-          expr
-          |> tap(&IO.puts(">>> MISSED: #{&1}"))
+          " " <> expr
+          # |> tap(&IO.puts(">>> MISSED: #{&1}"))
       end
+      |> String.replace(~r/  +do$/, " do")
+      |> String.replace("| markdownify", "|> markdownify")
+      |> String.replace(~r/^= (page|site)/, "= @\\1")
 
-    "<%= #{fixed} %>"
+    "<%#{fixed} %>"
   end
 
   defp convert_file(path) do
@@ -170,11 +163,14 @@ defmodule Mix.Tasks.Dragon.Convert do
       end)
 
     File.write(path, Enum.reverse(content))
-    # raise "narf #{path}"
   end
 
+  @always_convert MapSet.new([".html", ".htm"])
+  defp always_convert?(ext), do: MapSet.member?(@always_convert, ext)
+
   defp handle_file(dragon, path, opts) do
-    if opts.in_meta or has_separator?(path), do: convert_file(path)
+    ext = Path.extname(path)
+    if has_separator?(path) or (opts.in_meta and always_convert?(ext)), do: convert_file(path)
     dragon
   end
 end

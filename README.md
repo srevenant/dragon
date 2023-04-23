@@ -26,7 +26,7 @@ Benefits of Dragon:
   just include it from your local path. You can still use library folders if you
   so desire, in any location you choose (starting an included file with a slash
   resolves that file based on the project root, rather than relatively to the
-  current file).
+  current file) — see [Using](docs/using.md) for more details.
 
 For more information see: [Using](docs/using.md).
 
