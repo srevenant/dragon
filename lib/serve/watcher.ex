@@ -9,7 +9,7 @@ defmodule Dragon.Serve.Watcher do
   def init(_) do
     with {:ok, root} <- Dragon.get(:root),
          {:ok, build} <- Dragon.get(:build),
-         {:ok, base} <- Dragon.Tools.get_true_path(root),
+         {:ok, base} <- Dragon.Tools.File.get_true_path(root),
          {:ok, pid} <- FileSystem.start_link(dirs: [root]) do
       FileSystem.subscribe(pid)
       build = String.slice(build, (String.length(root) + 1)..-1)
@@ -38,8 +38,8 @@ defmodule Dragon.Serve.Watcher do
         true ->
           # or per-file
           with {:ok, dragon} <- Dragon.get() do
-            case Dragon.Tools.file_type(target) do
-              {:ok, :file, target} -> Dragon.File.Synchronize.synchronize(dragon, [target])
+            case Dragon.Tools.File.file_type(target) do
+              {:ok, :file, target} -> Dragon.Tools.File.Synchronize.synchronize(dragon, [target])
               {:ok, :dragon, target} -> Dragon.Template.Evaluate.all(dragon, [target])
               {:ok, :scss, target} -> Dragon.Scss.Evaluate.all(dragon, [target])
             end

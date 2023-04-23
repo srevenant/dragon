@@ -5,8 +5,8 @@ defmodule Dragon.Data.Collection do
 
   use Dragon.Context
   import Dragon.Data, only: [get_into: 2]
-  import Dragon.Tools, only: [drop_root: 2]
-  import Dragon.Tools
+  import Dragon.Tools.File, only: [drop_root: 2]
+  import Dragon.Tools.Dict
 
   defstruct src: nil,
             dst: nil,
@@ -34,7 +34,7 @@ defmodule Dragon.Data.Collection do
 
     case File.stat(fullpath) do
       {:ok, %{type: :directory}} ->
-        notify([:green, "Indexing collection: ", :reset, :bright, path])
+        stdout([:green, "Indexing collection: ", :reset, :bright, path])
         noroot = drop_root(root, fullpath)
 
         data =

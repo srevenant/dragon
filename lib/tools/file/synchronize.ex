@@ -1,4 +1,4 @@
-defmodule Dragon.File.Synchronize do
+defmodule Dragon.Tools.File.Synchronize do
   @moduledoc """
   Lightweight file synchronizer.
 
@@ -32,7 +32,7 @@ defmodule Dragon.File.Synchronize do
   def synchronize(%Dragon{root: root, build: build} = dragon, [file | rest]) do
     src = Path.join(root, file)
     dst = Path.join(build, file)
-    Dragon.Tools.makedirs_for_file(dst)
+    Dragon.Tools.File.makedirs_for_file(dst)
 
     diff = file_difference(src, dst)
 
@@ -60,7 +60,7 @@ defmodule Dragon.File.Synchronize do
   def synchronize(%Dragon{} = dragon, _), do: {:ok, dragon}
 
   def synchronize_file(src, dst, stat) do
-    notify([:green, "Synchronizing file: ", :reset, :bright, src])
+    stdout([:green, "Synchronizing file: ", :reset, :bright, src])
 
     case File.cp(src, dst) do
       :ok ->

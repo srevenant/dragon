@@ -3,17 +3,17 @@ defmodule Dragon.Data.File do
   Tools for loading data files (yml)
   """
   use Dragon.Context
-  import Dragon.Tools
-  import Dragon.Tools
+  import Dragon.Tools.File.WalkTree
+  import Dragon.Tools.Dict
   import Dragon.Data, only: [get_into: 2, data_path: 2]
 
   # def load(dragon, args, rest, forward) do
   def load(%Dragon{} = dragon, %{type: "file", path: path} = args) do
-    notify([:green, "Loading data", :reset, " from ", :bright, path])
+    stdout([:green, "Loading data", :reset, " from ", :bright, path])
     prefix = get_into(dragon, args)
 
     walk_tree(dragon, path,
-      types: %{".yml" => &load_data_file/3, ".yaml" => &load_data_file/3},
+      match: %{"yml" => &load_data_file/3, "yaml" => &load_data_file/3},
       follow_meta: true,
       prefix: prefix
     )
@@ -42,7 +42,7 @@ defmodule Dragon.Data.File do
         {prefix, path} when is_list(prefix) -> prefix ++ path
       end
 
-    notify([
+    stdout([
       :green,
       "Loading ",
       :reset,

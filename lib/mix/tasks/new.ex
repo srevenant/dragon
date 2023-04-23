@@ -120,6 +120,8 @@ defmodule Mix.Tasks.Dragon.New do
   </html>
   """)
 
+  def dragon_config(opts), do: dragon_config_template(opts)
+
   embed_template(:dragon_config, """
   version: 1.0
   ## a list of data sources. Currently supported are type: file and collection

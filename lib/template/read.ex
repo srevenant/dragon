@@ -4,7 +4,7 @@ defmodule Dragon.Template.Read do
   """
 
   use Dragon.Context
-  import Dragon.Tools
+  import Dragon.Tools.File
   import Dragon.Data, only: [clean_data: 1]
 
   ##############################################################################
@@ -56,7 +56,7 @@ defmodule Dragon.Template.Read do
     {:ok,
      with_open_file(path, fn fd ->
        # Jump forward past the header
-       Dragon.Tools.seek!(fd, offset)
+       Dragon.Tools.File.seek!(fd, offset)
        |> IO.stream(:line)
        |> Enum.reduce_while([], &read_body/2)
      end)

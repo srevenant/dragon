@@ -5,7 +5,8 @@ defmodule Dragon do
   """
   use GenServer
   use Dragon.Context
-  import Dragon.Tools, only: [scan_file: 3, walk_tree: 3]
+  import Dragon.Tools.File.WalkTree
+  import Dragon.Tools.File, only: [scan_file: 3]
 
   @always_imports [
     "Dragon.Template.Functions",
@@ -40,13 +41,13 @@ defmodule Dragon do
           frames: list()
         }
 
-  def start_link(_), do: GenServer.start_link(__MODULE__, [], name: __MODULE__)
+  def start_link(init), do: GenServer.start_link(__MODULE__, init, name: __MODULE__)
 
   ##############################################################################
   @spec init(target :: String.t()) :: Dragon.t()
-  def init([]) do
+  def init(args) do
     stdout([:light_blue, :bright, "Starting Dragon CMS"])
-    {:ok, nil}
+    {:ok, struct(__MODULE__, args)}
   end
 
   ##############################################################################
@@ -74,10 +75,10 @@ defmodule Dragon do
   # standalone server/process for easy reference when processes lose context
 
   @doc false
-  def handle_call({:configure, root}, _, _) do
+  def handle_call({:configure, root}, _, state) do
     Application.put_env(:dragon, :from, root)
 
-    case Dragon.Tools.find_index_file(root, @config_file) do
+    case Dragon.Tools.File.find_index_file(root, @config_file) do
       {:ok, path} ->
         case YamlElixir.read_all_from_file(path) do
           {:ok, [%{"version" => 1.0} = config]} ->
@@ -89,25 +90,22 @@ defmodule Dragon do
             |> update_plugins()
             |> Dragon.Data.load_data()
             |> case do
-              {:error, msg} -> {:reply, {:error, msg}, nil}
+              {:error, msg} -> {:reply, {:error, msg}, state}
               {:ok, %Dragon{} = dragon} -> {:reply, {:ok, dragon}, dragon}
             end
 
           {:error, %{message: msg}} ->
-            {:reply, {:error, "Error reading Dragon Config (#{path}): #{msg}"}, nil}
+            {:reply, {:error, "Error reading Dragon Config (#{path}): #{msg}"}, state}
 
           err ->
             IO.inspect(err, label: "Error")
-            {:reply, {:error, "Unable to find valid Dragon config in #{path}"}, nil}
+            {:reply, {:error, "Unable to find valid Dragon config in #{path}"}, state}
         end
 
       {:error, reason} ->
-        {:reply, {:error, "Unable to find target site/config file '#{root}': #{reason}"}, nil}
+        {:reply, {:error, "Unable to find target site/config file '#{root}': #{reason}"}, state}
     end
   end
-
-  def handle_call(call, _, nil),
-    do: stderr([:red, "Ignoring call for unconfigured Dragon (#{inspect(call)})"])
 
   def handle_call(:get, _, state), do: {:reply, {:ok, state}, state}
   def handle_call({:get, key}, _, state), do: {:reply, {:ok, Map.get(state, key)}, state}
@@ -167,7 +165,7 @@ defmodule Dragon do
 
   ##############################################################################
   def prepare_build(%Dragon{} = dragon) do
-    notify([:green, "Creating build folder: ", :reset, :bright, dragon.build])
+    stdout([:green, "Creating build folder: ", :reset, :bright, dragon.build])
 
     case File.mkdir_p(dragon.build) do
       {:error, reason} ->
@@ -178,6 +176,6 @@ defmodule Dragon do
     end
 
     with %Dragon{} = dragon <- walk_tree(dragon, "", no_match: &scan_file/3),
-         do: Dragon.File.Synchronize.synchronize(dragon)
+         do: Dragon.Tools.File.Synchronize.synchronize(dragon)
   end
 end

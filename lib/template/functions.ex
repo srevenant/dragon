@@ -2,7 +2,7 @@ defmodule Dragon.Template.Functions do
   @moduledoc """
   Helper functions for Dragon Templates.
   """
-  import Dragon.Tools, only: [drop_root: 2, find_file: 2]
+  import Dragon.Tools.File, only: [drop_root: 2, find_file: 2]
   use Dragon.Context
 
   def include(path, args \\ []) do

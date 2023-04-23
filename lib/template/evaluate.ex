@@ -1,7 +1,7 @@
 defmodule Dragon.Template.Evaluate do
   use Dragon.Context
-  import Dragon.Tools
   import Dragon.Template.Read
+  import Dragon.Tools.File
 
   @moduledoc """
   Core heart of evaluating EEX Templates.
@@ -30,11 +30,11 @@ defmodule Dragon.Template.Evaluate do
 
   ##############################################################################
   def processing(file, layout \\ nil)
-  def processing(file, nil), do: notify([:green, "EEX Template ", :reset, :bright, file])
+  def processing(file, nil), do: stdout([:green, "EEX Template ", :reset, :bright, file])
 
   def processing(file, layout),
     do:
-      notify([:green, "EEX Template ", :reset, :bright, file, :reset, :light_blue, " (#{layout})"])
+      stdout([:green, "EEX Template ", :reset, :bright, file, :reset, :light_blue, " (#{layout})"])
 
   ##############################################################################
   def evaluate(read_result, type, dragon, args \\ [])
@@ -83,7 +83,7 @@ defmodule Dragon.Template.Evaluate do
   def include_file(path, %Dragon{} = d, _, args) do
     case find_file(d.root, path) do
       {:ok, target} ->
-        info("+ Including #{target}")
+        stderr([:light_black, "+ Including #{target}"])
 
         read_template_header(target)
         |> handle_non_template(target)
@@ -105,13 +105,13 @@ defmodule Dragon.Template.Evaluate do
 
   ##############################################################################
   def posteval(%{root: root, build: build} = d, headers, origin, content) do
-    target = Path.join(build, Dragon.Tools.drop_root(root, origin))
+    target = Path.join(build, Dragon.Tools.File.drop_root(root, origin))
     Dragon.Plugin.posteval(d, origin, target, headers, content)
   end
 
   ##############################################################################
   def commit_file({:ok, path, headers, content}) do
-    info([:light_black, "  Saving ", :reset, path])
+    stderr([:light_black, "✓ Saving ", :reset, path])
 
     file =
       case headers do
@@ -119,7 +119,7 @@ defmodule Dragon.Template.Evaluate do
         _ -> path
       end
 
-    Dragon.Tools.write_file(file, content)
+    Dragon.Tools.File.write_file(file, content)
   end
 
   # side-effect execution frame state management

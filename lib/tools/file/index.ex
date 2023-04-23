@@ -1,18 +1,9 @@
-defmodule Dragon.Tools do
+defmodule Dragon.Tools.File do
   @moduledoc """
   File handling tools.
   """
   use Dragon.Context
-
-  def put_into(dict, [key], value), do: Map.put(dict, key, value)
-
-  def put_into(dict, [key | keys], value) do
-    case Map.get(dict, key) do
-      nil -> Map.put(dict, key, put_into(%{}, keys, value))
-      d when is_map(d) -> Map.replace(dict, key, put_into(d, keys, value))
-      _ -> raise ArgumentError
-    end
-  end
+  import Dragon.Tools.Dict
 
   def seek!(fd, offset) do
     with {:ok, _} <- :file.position(fd, offset), do: fd
@@ -47,7 +38,7 @@ defmodule Dragon.Tools do
   end
 
   def write_file(dest, content) do
-    Dragon.Tools.makedirs_for_file(dest)
+    Dragon.Tools.File.makedirs_for_file(dest)
 
     case File.write(dest, content) do
       :ok -> :ok
@@ -145,51 +136,6 @@ defmodule Dragon.Tools do
   end
 
   ##############################################################################
-  defp no_match(dragon, path, _) do
-    notify("Ignoring file '#{path}'")
-    dragon
-  end
-
-  def walk_tree(dragon, path, cfg) when is_list(cfg),
-    do:
-      walk_tree(
-        dragon,
-        path,
-        Map.merge(%{types: %{}, follow_meta: false, no_match: &no_match/3}, Map.new(cfg))
-      )
-
-  def walk_tree(%{root: root} = dragon, path, opts) when is_binary(path) and is_map(opts) do
-    fname = Path.basename(path)
-    first = String.at(fname, 0)
-
-    cond do
-      first == "_" and opts.follow_meta != true ->
-        dragon
-
-      ## instead, create an "ignore" pattern configuration/mask
-      first == "." ->
-        dragon
-
-      true ->
-        fullpath = Path.join(root, path)
-
-        case File.stat(fullpath) do
-          {:ok, %File.Stat{type: :directory}} ->
-            File.ls!(fullpath)
-            |> Enum.reduce(dragon, &walk_tree(&2, Path.join(path, &1), opts))
-
-          {:ok, %File.Stat{type: :regular}} ->
-            case opts.types[Path.extname(fname)] do
-              nil -> opts.no_match.(dragon, fullpath, opts)
-              handler -> handler.(dragon, fullpath, opts)
-            end
-
-          {:error, reason} ->
-            abort("Unable to process file '#{fullpath}': #{reason}")
-        end
-    end
-  end
-
   @doc """
   Within walk_tree, investigate a file to determine what its type is and store
   accordingly. If it begins with the dragon header, consider it a dragon

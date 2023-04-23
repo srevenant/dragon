@@ -8,6 +8,7 @@
 - deploy stage
 - delayed work queue where lambdas or callbacks of some sort can be punted,
   and run after everything else is done (like for path validation warnings)
+- Add an ignore file/path filter to the _dragon.yml config.
 - parse more template errors/tracebacks and make them more human readable, like:
 
 ```

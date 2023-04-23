@@ -13,7 +13,7 @@ defmodule Dragon.Plugin.Redirects do
   redirects_from are located.
   """
   use Dragon.Context
-  import Dragon.Tools
+  import Dragon.Tools.File
   @behaviour Dragon.Plugin
 
   @impl Dragon.Plugin
@@ -35,7 +35,7 @@ defmodule Dragon.Plugin.Redirects do
   def run(_, _, target, _, content), do: {:ok, target, content}
 
   defp create_redirects(content, build, [redirect | rest]) do
-    info([:light_black, "+ Redirect from ", :reset, :bright, redirect])
+    stderr([:light_black, "+ Redirect from ", :reset, :bright, redirect])
     :ok = File.mkdir_p(Path.join(build, redirect))
     write_file(Path.join([build, redirect, "index.html"]), content)
     create_redirects(content, build, rest)
