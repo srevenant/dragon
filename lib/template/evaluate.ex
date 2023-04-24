@@ -158,13 +158,21 @@ defmodule Dragon.Template.Evaluate do
             abort_nofile_error(template, path, line - 1, msg)
 
           error ->
-            error("Error processing #{path}")
+            # fugly
+            with [{:elixir_eval, :__FILE__, 1, [file: 'nofile', line: lines]} | _] <- __STACKTRACE__ do
+              msg =
+                case error do
+                  %{message: msg} -> msg
+                  other -> inspect(other)
+                end
+              abort_nofile_error(template, path, lines - 1, msg)
+            end
             Kernel.reraise(error, __STACKTRACE__)
         end
     end
   end
 
-  def abort_nofile_error(template, path, lineno, msg) do
+  def nofile_error(template, path, lineno, msg) do
     header_lines =
       case read_template_header(path) do
         {:ok, _, _, _, lines} -> lines + 2
@@ -193,6 +201,10 @@ defmodule Dragon.Template.Evaluate do
     end)
 
     IO.puts(:stderr, "\n")
+  end
+
+  def  abort_nofile_error(a, b, c, d) do
+    nofile_error(a, b, c, d)
     abort("Cannot continue")
   end
 
