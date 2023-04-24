@@ -45,7 +45,8 @@ defmodule Dragon.Template.Functions do
   def nil2str(value), do: raise(ArgumentError, message: "Invalid Data: #{value}")
 
   # todo: move to Transmogrify
-  def as_key(key), do: Transmogrify.snakecase(key) |> String.to_atom()
+  def as_key(key) when is_binary(key), do: Transmogrify.snakecase(key) |> String.to_atom()
+  def as_key(key) when is_atom(key), do: key
 
   defp one_slash(str), do: Regex.replace(~r|//+|, str, "/")
 
@@ -64,6 +65,7 @@ defmodule Dragon.Template.Functions do
 
   # move to Tools.File
   defp fix_path(path) do
+    path = Path.join(Path.split(path))
     with {:ok, root} <- Dragon.get(:root),
          {:ok, p} <- drop_root(root, path, absolute: true) |> fix_relative_path(root) do
       {:ok, p, root}

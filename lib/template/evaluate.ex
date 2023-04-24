@@ -2,6 +2,8 @@ defmodule Dragon.Template.Evaluate do
   use Dragon.Context
   import Dragon.Template.Read
   import Dragon.Tools.File
+  # Todo: after moved to Transmogrify remove import
+  import Dragon.Template.Functions, only: [as_key: 1]
 
   @moduledoc """
   Core heart of evaluating EEX Templates.
@@ -85,17 +87,51 @@ defmodule Dragon.Template.Evaluate do
       {:ok, target} ->
         stderr([:light_black, "+ Including #{target}"])
 
-        read_template_header(target)
-        |> handle_non_template(target)
-        |> evaluate(:layout, d, args)
+        inputs =
+          read_template_header(target)
+          |> handle_non_template(target)
+
+        args = check_include_args(inputs, Map.new(args))
+
+        evaluate(inputs, :layout, d, Map.to_list(args))
 
       {:error, msg} ->
         raise ArgumentError, message: "Include failed: #{msg}"
     end
   end
 
-  def handle_non_template({:error, _}, target), do: {:ok, %{}, target, 0, 0}
-  def handle_non_template({:ok, _, _, _, _} = pass, _), do: pass
+  defp handle_non_template({:error, _}, target), do: {:ok, %{}, target, 0, 0}
+  defp handle_non_template({:ok, _, _, _, _} = pass, _), do: pass
+
+  defp check_include_args({:ok, %{"@spec": %{args: argref}}, _, _, _}, args) do
+    Enum.map(argref, fn
+      "?" <> k ->
+        {:optional, as_key(k)}
+
+      k when is_binary(k) ->
+        {:required, as_key(k)}
+
+      m when is_map(m) ->
+        case Map.to_list(m) do
+          [{k, v}] -> {:default, as_key(k), v}
+          value -> raise ArgumentError, message: "invalid @spec.args #{inspect(value)}"
+        end
+
+      other ->
+        raise ArgumentError, message: "invalid @spec.args #{inspect(other)}"
+    end)
+    |> Enum.reduce(args, fn spec, args ->
+      case spec do
+        {:required, key} when is_map_key(args, key) -> args
+        {:required, key} -> raise ArgumentError, message: "Include missing arg: #{key}"
+        {:default, key, _} when is_map_key(args, key) -> args
+        {:default, key, value} -> Map.put(args, key, value)
+        {:optional, _} -> args
+      end
+    end)
+  end
+
+  defp check_include_args(_, args), do: args
 
   ################################################################################
   def validate({:ok, dst, headers, content}) do
