@@ -1,7 +1,15 @@
+- abort should not exit, so dragon.serve doesn't exit
+- layouts are still a bit confusing and don't quite work as well as they could
+  (they need more context of their parent)
+- metadata always set: @frame
+- collections need more work; see metadata & layouts problems.
+- dragon.convert {file} as well as {folder}
 - Helpers:
+  "nil2str" — maybe not necessary?
   "date" (strftime)
   "datefrom" plugin (within siteindex.xml)
   "sitemap" plugin? ~ ala redirects
+  "as_key" - correlate to data too
 - Should header matter from site/layout template be visible to children?
 - abs path on layout should not check _layout
 - eex filter for data (along the lines of markdownify)

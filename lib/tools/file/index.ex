@@ -46,11 +46,14 @@ defmodule Dragon.Tools.File do
     end
   end
 
-  def drop_root("", path), do: path
+  def drop_root(x, y, z \\ [absolute: false])
+  def drop_root("", path, _), do: path
 
-  def drop_root(root, path) do
+  def drop_root(root, path, opts) do
     if String.slice(path, 0..(String.length(root) - 1)) == root do
-      String.slice(path, (String.length(root) + 1)..-1)
+      start = String.length(root)
+      start = if opts[:absolute], do: start, else: start + 1
+      String.slice(path, start..-1)
     else
       path
     end
