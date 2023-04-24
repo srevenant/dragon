@@ -46,6 +46,7 @@ defmodule Dragon.Tools.File do
     end
   end
 
+  def drop_root("", path), do: path
   def drop_root(root, path) do
     if String.slice(path, 0..(String.length(root) - 1)) == root do
       String.slice(path, (String.length(root) + 1)..-1)

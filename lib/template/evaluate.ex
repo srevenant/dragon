@@ -44,7 +44,7 @@ defmodule Dragon.Template.Evaluate do
   # the layout template, sending the current output into that as a page
   # argument (@page.content)
   def evaluate(
-        {:ok, %{"@spec": %{layout: layout}} = headers, path, offset},
+        {:ok, %{"@spec": %{layout: layout}} = headers, path, offset, _},
         :primary,
         %Dragon{} = d,
         args
@@ -65,7 +65,7 @@ defmodule Dragon.Template.Evaluate do
          do: {:ok, target, headers, output}
   end
 
-  def evaluate({:ok, headers, path, offset}, type, %Dragon{} = d, args) do
+  def evaluate({:ok, headers, path, offset, _}, type, %Dragon{} = d, args) do
     if type != :layout do
       processing(path)
     end
@@ -94,8 +94,8 @@ defmodule Dragon.Template.Evaluate do
     end
   end
 
-  def handle_non_template({:error, _}, target), do: {:ok, %{}, target, 0}
-  def handle_non_template({:ok, _, _, _} = pass, _), do: pass
+  def handle_non_template({:error, _}, target), do: {:ok, %{}, target, 0, 0}
+  def handle_non_template({:ok, _, _, _, _} = pass, _), do: pass
 
   ################################################################################
   def validate({:ok, dst, headers, content}) do
@@ -153,7 +153,7 @@ defmodule Dragon.Template.Evaluate do
       err ->
         case err do
           ## TODO: include offset in line count so you can find it in the editor!
-          %CompileError{file: "nofile", line: line, description: msg} ->
+          %{file: "nofile", line: line, description: msg} ->
             # minus one to the line because we added a line above
             abort_nofile_error(template, path, line - 1, msg)
 
@@ -165,9 +165,14 @@ defmodule Dragon.Template.Evaluate do
   end
 
   def abort_nofile_error(template, path, lineno, msg) do
+    header_lines =
+      case read_template_header(path) do
+        {:ok, _, _, _, lines} -> lines + 2
+        _ -> 0
+      end
+
     first = lineno - 2
     first = if first < 0, do: 0, else: first
-
     last = lineno + 2
 
     stderr(["\n", :yellow, "? ", "#{path}:#{lineno}", :reset, " — ", :yellow, :bright, msg, "\n"])
@@ -175,8 +180,8 @@ defmodule Dragon.Template.Evaluate do
     String.split(template, "\n")
     |> Enum.reduce_while(1, fn line, index ->
       cond do
-        index == lineno -> print_with_line("»", index, line)
-        index > first and index < last -> print_with_line(" ", index, line)
+        index == lineno -> print_with_line("»", index + header_lines, line)
+        index > first and index < last -> print_with_line(" ", index + header_lines, line)
         true -> :ok
       end
 

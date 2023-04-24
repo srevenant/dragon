@@ -17,6 +17,10 @@ defmodule Dragon.Plugin.Redirects do
   @behaviour Dragon.Plugin
 
   @impl Dragon.Plugin
+  def run(%Dragon{} = _d, _origin, target, %{redirect_to: dest} = h, content) do
+    {:ok, target, redirect_body(dest)}
+  end
+
   def run(%Dragon{} = _d, _origin, target, %{redirect_from: redirects} = h, content) do
     with {:ok, build} <- Dragon.get(:build) do
       target =
@@ -46,13 +50,17 @@ defmodule Dragon.Plugin.Redirects do
   def redirect_body(canonical_url) do
     """
     <!DOCTYPE html>
-    <html lang="en">
+    <html lang="en-US">
     <head>
-      <meta charset="UTF-8">
-      <title>Redirecting&hellip;</title>
-      <link rel="canonical" href="#{canonical_url}">
-      <meta http-equiv="Refresh" content="0; URL=#{canonical_url}" />
+    <title>Redirecting&hellip;</title>
+    <link rel="canonical" href="#{canonical_url}">
+    <meta http-equiv="Refresh" content="0; URL=#{canonical_url}" />
+    <meta name="robots" content="noindex">
     </head>
+    <body>
+    <h1>Redirecting</h1>
+    <a href="#{canonical_url}">Click here if you are not redirected.</a>
+    </body>
     </html>
     """
   end

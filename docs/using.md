@@ -36,7 +36,11 @@ See also: [Example](../example/)
     regardless of if its templated or not. Do not use `.eex` files, but rather
     `.html`, `.txt`, or others as appropriate.
 
-- ___Data___ —
+- ___Data___ — Data is loaded in from header matter, files, or other locations.
+  Data keys are always converted to snake-case atom-keys, regardless of their
+  origin type. This means you can use keyWord, KeyWord, or key_word, and all of
+  these will result as `:key_word`
+
   - Data imports are specified in the dragon config file, and may be one of two
     types: _file_ (yml) and _collection_ (future: _ecto_).
   - __File__ data targets should be folders. All yml, yaml, and json files' contents
@@ -74,12 +78,13 @@ See also: [Example](../example/)
   - Data in the header matter of a file is available in `@page.{..}`
   - Data passed as arguments to an include are available in `@page.{..}`
   - Similar to Jekyll header matter is YML syntax.
-  - Known header matter values:
+  - Special header matter values always added even if unspecified:
     - `date:` — publish date (ISO 8601 syntax) — if unspecified, the date is
       taken from the filename, or if no date is in the filename, it is taken
       from the file's creation time.
     - `title:` — if unspecified the filename is converted to a title.
     - `date_modified:` — the last modification timestamp for the file.
+    - `path:` — the absolute filename for the parent file
     - `@spec:` — special data giving dragon information about the template, including:
       - `args:` — a list of required argument keywords for an include file. If
         the file is included in another and these keywords are not specified
@@ -101,10 +106,24 @@ See also: [Example](../example/)
       - `path` — a function that verifies files exist in the build folder, and
         converts them to the absolute version of the file using the same logic
         as is used with include.
-      - `markdownify` — convert a string to html.
+      - `date` — convert a date to a format matching [Calendar.stftime()](https://hexdocs.pm/calendar/Calendar.Strftime.html) formatting.
       - `peek` — load the headermatter of a target dragon template
+      - `markdownify` — convert a string to html.
+      - `jsonify` — convert data to JSON
 
 - ___Elixir/EEX Template imports___ You can include additional standard elixir
   modules modules through the dragon config variable `imports:` which takes
   a list of module names. At this time you cannot import custom modules
   without adding it to the Dragon lib folder.
+
+- ___Plugins___ — Plugins are run after a page is rendered.
+  - __Markdown__ — This plugin converts markdown to html.
+  - __Redirect__ — This plugin uses either `redirect_from:` or `redirect_to:`
+    in a document's header matter.
+    - `redirect_from:` _[list of string: path]_ provide a list of origin paths,
+      and redirects will be created from that origin to the current document.
+    - `redirect_to:` _[string: url]_ This replaces the entire document's
+      contents with a redirect to the destination provided (useful for redirecting
+      outside of the current site).
+  - __HtmlMinify__ — _[FUTURE]_ Validate and reformat/minify HTML to proper standards.
+  - __CssMinify__ — _[FUTURE]_ Validate and reformat/minify CSS to proper standards.

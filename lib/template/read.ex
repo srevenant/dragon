@@ -9,7 +9,7 @@ defmodule Dragon.Template.Read do
 
   ##############################################################################
   @spec read_template_header(file :: String.t()) ::
-          {:ok, header :: map(), path :: String.t(), end_of_header_offset :: integer()}
+          {:ok, header :: map(), path :: String.t(), end_of_header_offset :: integer(), lines_in_header :: integer()}
           | {:error, reason :: String.t() | atom()}
 
   # scan contents of file and stop at body separator
@@ -21,7 +21,7 @@ defmodule Dragon.Template.Read do
     |> case do
       {offset, buffer} when is_integer(offset) ->
         with {:ok, data} <- parse_header(path, buffer),
-             do: {:ok, data, path, offset}
+             do: {:ok, data, path, offset, length(buffer)}
 
       other ->
         other

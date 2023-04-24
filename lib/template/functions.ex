@@ -14,11 +14,13 @@ defmodule Dragon.Template.Functions do
     end
   end
 
-  def markdownify(markdown) do
-    with {:ok, content, _} <- Earmark.as_html(markdown) do
+  def markdownify(content) do
+    with {:ok, content, _} <- Earmark.as_html(content) do
       content
     end
   end
+
+  def jsonify(content), do: Jason.encode!(content)
 
   def path("#" <> _id = fragment), do: fragment
 
@@ -46,6 +48,12 @@ defmodule Dragon.Template.Functions do
          {:ok, header, _, _} <-
            Dragon.Template.Read.read_template_header(path),
          do: Dragon.Data.clean_data(header)
+  end
+
+  def date(d, fmt) do
+    with {:ok, date} <- Calendar.strftime(d, fmt) do
+      date
+    end
   end
 
   defp fix_relative_path("/" <> path), do: {:ok, path}

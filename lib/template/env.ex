@@ -11,7 +11,7 @@ defmodule Dragon.Template.Env do
   Get env/context for a file
   """
   def get_for(origin, type, header, dragon, args \\ []) do
-    with {:ok, data} <- get_file_metadata(origin, header) do
+    with {:ok, data} <- get_file_metadata(dragon.root, origin, header) do
       args = Map.new(args)
 
       args =
@@ -35,7 +35,7 @@ defmodule Dragon.Template.Env do
   end
 
   ##############################################################################
-  def get_file_metadata(origin, data) when is_map(data) do
+  def get_file_metadata(root, origin, data) when is_map(data) do
     data = clean_data(data)
 
     {:ok,
@@ -47,7 +47,8 @@ defmodule Dragon.Template.Env do
            date_modified: posix_erl_to_datetime(stat.mtime),
            date: date,
            date_t: DateTime.to_unix(date),
-           title: get_title_from_file(origin)
+           title: get_title_from_file(origin),
+           path: Dragon.Tools.File.drop_root(root, origin)
          }
 
        _ ->

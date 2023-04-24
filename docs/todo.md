@@ -1,3 +1,9 @@
+- Helpers:
+  "date" (strftime)
+  "datefrom" plugin (within siteindex.xml)
+  "sitemap" plugin? ~ ala redirects
+- Should header matter from site/layout template be visible to children?
+- abs path on layout should not check _layout
 - eex filter for data (along the lines of markdownify)
 - ? opinionated use of dashes or underbars in filenames. Probably underbar so it's
   consistent with vars.

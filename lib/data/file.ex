@@ -20,20 +20,6 @@ defmodule Dragon.Data.File do
   end
 
   ##############################################################################
-  def file_details(path) do
-    case Dragon.Template.Read.read_template_header(path) do
-      {:error, reason} ->
-        abort("Unable to load file header (#{path}): #{reason}")
-
-      {:ok, header, _, _} ->
-        with {:ok, meta} <- Dragon.Template.Env.get_file_metadata(path, header) do
-          # image data?
-          Map.take(meta, [:title, :date, :date_t, :date_modified])
-        end
-    end
-  end
-
-  ##############################################################################
   def load_data_file(dragon, path, opts) do
     # strip off the first parts of the name... meh?
     datapath =
