@@ -26,3 +26,8 @@
     (stdlib 4.1.1) erl_eval.erl:492: :erl_eval.expr/6
     (stdlib 4.1.1) erl_eval.erl:136: :erl_eval.exprs/6
 ```
+
+## Transmogrify
+
+- snakecase & co should handle atoms as well as strings ingress
+- as_key should be in transmog

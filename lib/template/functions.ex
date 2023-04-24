@@ -39,14 +39,20 @@ defmodule Dragon.Template.Functions do
     end
   end
 
+  def nil2str(value) when is_binary(value), do: value
+  def nil2str(value) when is_nil(value), do: ""
+  def nil2str(value), do: raise(ArgumentError, message: "Invalid Data: #{value}")
+
+  # todo: move to Transmogrify
+  def as_key(key), do: Transmogrify.snakecase(key) |> String.to_atom()
+
   defp one_slash(str), do: Regex.replace(~r|//+|, str, "/")
 
   def peek(path) do
     with {:ok, root} <- Dragon.get(:root),
          {:ok, path} <- fix_relative_path(drop_root(root, path)),
          {:ok, path} <- find_file(root, path),
-         {:ok, header, _, _} <-
-           Dragon.Template.Read.read_template_header(path),
+         {:ok, header, _, _, _} <- Dragon.Template.Read.read_template_header(path),
          do: Dragon.Data.clean_data(header)
   end
 

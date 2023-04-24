@@ -13,7 +13,7 @@ defmodule Dragon.Template.Evaluate do
 
   """
 
-  def all(%Dragon{files: %{dragon: l}} = d), do: all(d, Map.keys(l))
+  def all(%Dragon{files: %{dragon: l}} = d), do: all(d, Map.keys(l) |> Enum.sort())
 
   def all(%Dragon{} = d, [file | rest]) do
     with {:ok, path} <- find_file(d.root, file) do
@@ -90,7 +90,7 @@ defmodule Dragon.Template.Evaluate do
         |> evaluate(:layout, d, args)
 
       {:error, msg} ->
-        abort("+ Include failed: #{msg}")
+        raise ArgumentError, message: "Include failed: #{msg}"
     end
   end
 
@@ -146,8 +146,17 @@ defmodule Dragon.Template.Evaluate do
     )
   end
 
-  defp evaluate_frame(_frame, imports, path, template, env) do
+  def error_message(%{message: msg}) when not is_nil(msg), do: msg
+  def error_message(err), do: inspect(err)
+
+  def nofile_line([{:elixir_eval, :__FILE__, 1, [file: 'nofile', line: line]} | _]), do: line
+  def nofile_line([_ | rest]), do: nofile_line(rest)
+  def nofile_line([]), do: 0
+
+  # sort | reverse
+  defp evaluate_frame(frame, imports, path, template, env) do
     try do
+      env = Map.put(env, :frame, frame)
       {:ok, EEx.eval_string(imports <> template, assigns: Map.to_list(env))}
     rescue
       err ->
@@ -157,22 +166,27 @@ defmodule Dragon.Template.Evaluate do
             # minus one to the line because we added a line above
             abort_nofile_error(template, path, line - 1, msg)
 
-          error ->
-            # fugly
-            with [{:elixir_eval, :__FILE__, 1, [file: 'nofile', line: lines]} | _] <- __STACKTRACE__ do
-              msg =
-                case error do
-                  %{message: msg} -> msg
-                  other -> inspect(other)
-                end
-              abort_nofile_error(template, path, lines - 1, msg)
-            end
-            Kernel.reraise(error, __STACKTRACE__)
+          %KeyError{key: key, term: data} ->
+            abort_nofile_error(
+              template,
+              path,
+              __STACKTRACE__,
+              "key #{inspect(key)} not found in: #{inspect(data)}"
+            )
+
+          _ ->
+            nofile_error(template, path, __STACKTRACE__, err)
+            Kernel.reraise(err, __STACKTRACE__)
         end
     end
   end
 
-  def nofile_error(template, path, lineno, msg) do
+  def abort_nofile_error(a, b, c, d) do
+    nofile_error(a, b, c, d)
+    abort("Cannot continue")
+  end
+
+  def nofile_error(template, path, lineno, msg) when is_integer(lineno) and is_binary(msg) do
     header_lines =
       case read_template_header(path) do
         {:ok, _, _, _, lines} -> lines + 2
@@ -203,10 +217,8 @@ defmodule Dragon.Template.Evaluate do
     IO.puts(:stderr, "\n")
   end
 
-  def  abort_nofile_error(a, b, c, d) do
-    nofile_error(a, b, c, d)
-    abort("Cannot continue")
-  end
+  def nofile_error(t, p, l, m) when not is_binary(m), do: nofile_error(t, p, l, error_message(m))
+  def nofile_error(t, p, tb, m) when is_list(tb), do: nofile_error(t, p, nofile_line(tb), m)
 
   defp print_with_line(prefix, index, line) do
     padded = String.pad_leading("#{index}", 3)

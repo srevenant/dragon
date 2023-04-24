@@ -143,7 +143,7 @@ defmodule Mix.Tasks.Dragon.Convert do
           " end"
 
         miss ->
-          " " <> expr
+          "= " <> expr
           # |> tap(&IO.puts(">>> MISSED: #{&1}"))
       end
       |> String.replace(~r/  +do$/, " do")

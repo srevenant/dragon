@@ -6,7 +6,7 @@ defmodule Dragon.Scss.Evaluate do
   use Dragon.Context
   import Dragon.Tools.File
 
-  def all(%Dragon{files: %{scss: l}} = d), do: all(d, Map.keys(l))
+  def all(%Dragon{files: %{scss: l}} = d), do: all(d, Map.keys(l) |> Enum.sort())
   def all(d), do: {:ok, d}
 
   def all(%Dragon{} = d, [file | rest]) do
