@@ -1,6 +1,7 @@
 defmodule Dragon.Serve.Watcher do
   @moduledoc false
   use GenServer
+  use Dragon.Context
   require Logger
 
   # def start(), do: Supervisor.start_link(__MODULE__, [strategy: :one_for_one, name: Dragon.Supervisor])
@@ -54,7 +55,10 @@ defmodule Dragon.Serve.Watcher do
         end
       rescue
         err ->
-          Logger.error(Exception.format(:error, err, __STACKTRACE__))
+          case err do
+            %Dragon.AbortError{message: msg} -> error(msg)
+            e -> Logger.error(Exception.format(:error, e, __STACKTRACE__))
+          end
       end
     end
 
