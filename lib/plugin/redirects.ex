@@ -17,7 +17,7 @@ defmodule Dragon.Plugin.Redirects do
   @behaviour Dragon.Plugin
 
   @impl Dragon.Plugin
-  def run(%Dragon{} = _d, _origin, target, %{redirect_to: dest} = h, content) do
+  def run(%Dragon{} = _d, _origin, target, %{redirect_to: dest}, _content) do
     {:ok, target, redirect_body(dest)}
   end
 

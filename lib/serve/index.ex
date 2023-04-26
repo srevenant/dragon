@@ -2,8 +2,7 @@ defmodule Dragon.Serve do
   @moduledoc false
   use Dragon.Context
 
-  def start(target) do
-    port = 5000
+  def start(target, port: port) do
     Application.ensure_all_started(:dragon)
     Application.ensure_all_started(:plug)
     Application.ensure_all_started(:logger)

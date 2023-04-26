@@ -31,7 +31,7 @@ defmodule Dragon.Template.Read do
 
   defp read_header("---" <> type, nil) do
     case get_separator_type(type) do
-      {:ok, :dragon, _} -> {:cont, {3 + String.length(type), []}}
+      {:ok, :dragon, _} -> {:cont, {3 + byte_size(type), []}}
       {:error, _} = err -> {:halt, err}
       {:ok, other, _} -> {:halt, {:error, "not dragon header type? (#{other})"}}
     end
@@ -39,14 +39,16 @@ defmodule Dragon.Template.Read do
 
   defp read_header("---" <> type, {offset, buffer}) do
     case get_separator_type(type) do
-      {:ok, :eex, _} -> {:halt, {offset + 3 + String.length(type), buffer}}
+      {:ok, :eex, _} ->
+        {:halt, {offset + 3 + byte_size(type), buffer}}
+
       {:error, _} = err -> {:halt, err}
       {:ok, other, _} -> {:halt, {:error, "not eex header type? (#{other})"}}
     end
   end
 
   defp read_header(line, {offset, buffer}),
-    do: {:cont, {offset + String.length(line), [line | buffer]}}
+    do: {:cont, {offset + byte_size(line), [line | buffer]}}
 
   defp read_header(_line, nil), do: {:halt, {:error, "found data before reading separator?"}}
 
