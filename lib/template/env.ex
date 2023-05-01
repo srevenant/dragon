@@ -12,6 +12,7 @@ defmodule Dragon.Template.Env do
   """
   def get_for(origin, type, header, dragon, args) do
     parent_page = Map.get(args, :page, %{})
+
     with {:ok, data} <- get_file_metadata(dragon.root, origin, header) do
       args = Map.new(args)
 

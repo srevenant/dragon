@@ -48,7 +48,8 @@ defmodule Dragon.Template.Evaluate do
         :primary,
         %Dragon{} = d,
         args
-      ) when is_map(args) do
+      )
+      when is_map(args) do
     processing(path, layout)
 
     with {:ok, content} <- read_template_body(path, offset),
@@ -58,7 +59,13 @@ defmodule Dragon.Template.Evaluate do
          {:ok, target, headers, output} <- posteval(d, headers, path, output),
          # then insert into layout
          {:ok, _, _, output} <-
-           include_file(Path.join(d.layouts, "_#{layout}"), d, :layout, [content: output], headers),
+           include_file(
+             Path.join(d.layouts, "_#{layout}"),
+             d,
+             :layout,
+             [content: output],
+             headers
+           ),
          do: {:ok, target, headers, output}
   end
 
@@ -92,6 +99,7 @@ defmodule Dragon.Template.Evaluate do
           else
             page
           end
+
         args =
           check_include_args(inputs, Map.new(args))
           |> Map.put(:page, parent_page)
@@ -176,6 +184,7 @@ defmodule Dragon.Template.Evaluate do
       fn prev ->
         # drop content—that shouldn't go into frame state
         page = (Map.get(env, :page) || %{}) |> Map.delete(:content)
+
         case prev do
           nil ->
             %{prev: nil, this: path, top: path, page: page}

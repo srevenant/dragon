@@ -106,7 +106,12 @@ See also: [Example](../example/)
       - `path` — a function that verifies files exist in the build folder, and
         converts them to the absolute version of the file using the same logic
         as is used with include.
-      - `date` — convert a date to a format matching [Calendar.stftime()](https://hexdocs.pm/calendar/Calendar.Strftime.html) formatting.
+      - `date {arg1} {format}` — convert a date (arg1) to a format (arg2)
+        matching [Calendar.stftime()](https://hexdocs.pm/calendar/Calendar.Strftime.html) formatting.
+        If no format is specified, it returns time in ISO 8601 format.
+      - `datefrom` — similar to date, but arg1 is a file or list of files
+        from which the last modified time is taken. If it is a list of files,
+        the date is the most recent of the set of files.
       - `peek` — load the headermatter of a target dragon template
       - `markdownify` — convert a string to html.
       - `jsonify` — convert data to JSON
