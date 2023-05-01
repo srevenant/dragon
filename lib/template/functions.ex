@@ -40,10 +40,6 @@ defmodule Dragon.Template.Functions do
     end
   end
 
-  # todo: move to Transmogrify
-  def as_key(key) when is_binary(key), do: Transmogrify.snakecase(key) |> String.to_atom()
-  def as_key(key) when is_atom(key), do: key
-
   defp one_slash(str), do: Regex.replace(~r|//+|, str, "/")
 
   def peek(path) do

@@ -12,7 +12,8 @@ defmodule Dragon.Data.File do
     stdout([:green, "Loading data", :reset, " from ", :bright, path])
     prefix = get_into(dragon, args)
 
-    walk_tree(dragon, path,
+    %Dragon{dragon | data_paths: Map.put(dragon.data_paths, Path.join(dragon.root, path), [])}
+    |> walk_tree(path,
       match: %{~r/\.(ya?ml|json)$/ => &load_data_file/3},
       follow_meta: true,
       prefix: prefix

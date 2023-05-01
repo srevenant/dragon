@@ -43,7 +43,7 @@ defmodule Dragon.MixProject do
       {:bandit, "~> 0.7.7"},
       {:plug_cowboy, "~> 2.6.1"},
       {:rivet_utils, "~> 1.1.7"},
-      {:transmogrify, "~> 1.1.1"},
+      {:transmogrify, "~> 1.1.2"},
       {:file_system, "~> 0.2"},
       {:yaml_elixir, "~> 2.8.0"},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}

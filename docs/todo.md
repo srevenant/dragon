@@ -23,6 +23,8 @@
 - delayed work queue where lambdas or callbacks of some sort can be punted,
   and run after everything else is done (like for path validation warnings)
 - Add an ignore file/path filter to the _dragon.yml config.
+- when in 'serve' and changing data files after initial build, it synchronizes
+  them but doesn't load them.
 - parse more template errors/tracebacks and make them more human readable, like:
 
 ```
@@ -33,6 +35,17 @@
     (stdlib 4.1.1) erl_eval.erl:323: :erl_eval.expr/6
     (stdlib 4.1.1) erl_eval.erl:492: :erl_eval.expr/6
     (stdlib 4.1.1) erl_eval.erl:136: :erl_eval.exprs/6
+```
+
+- every so often in 'serve' a process error happens:
+```
+Creating build folder: cato.digital/_build
+** (EXIT from #PID<0.95.0>) an exception was raised:
+    ** (UndefinedFunctionError) function :sys.get_log/1 is undefined or private
+        (stdlib 4.1.1) :sys.get_log([])
+        (stdlib 4.1.1) gen_server.erl:1383: :gen_server.error_info/8
+        (stdlib 4.1.1) gen_server.erl:1362: :gen_server.terminate/10
+        (stdlib 4.1.1) proc_lib.erl:240: :proc_lib.init_p_do_apply/3
 ```
 
 ## Transmogrify

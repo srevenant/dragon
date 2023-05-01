@@ -42,8 +42,11 @@ defmodule Dragon.Template.Read do
       {:ok, :eex, _} ->
         {:halt, {offset + 3 + byte_size(type), buffer}}
 
-      {:error, _} = err -> {:halt, err}
-      {:ok, other, _} -> {:halt, {:error, "not eex header type? (#{other})"}}
+      {:error, _} = err ->
+        {:halt, err}
+
+      {:ok, other, _} ->
+        {:halt, {:error, "not eex header type? (#{other})"}}
     end
   end
 

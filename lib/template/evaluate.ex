@@ -3,7 +3,7 @@ defmodule Dragon.Template.Evaluate do
   import Dragon.Template.Read
   import Dragon.Tools.File
   # Todo: after moved to Transmogrify remove import
-  import Dragon.Template.Functions, only: [as_key: 1]
+  import Transmogrify.As
 
   @moduledoc """
   Core heart of evaluating EEX Templates.
@@ -20,7 +20,7 @@ defmodule Dragon.Template.Evaluate do
   def all(%Dragon{} = d, [file | rest]) do
     with {:ok, path} <- find_file(d.root, file) do
       read_template_header(path)
-      |> evaluate(:primary, d)
+      |> evaluate(:primary, d, %{})
       |> validate()
       |> commit_file()
 
@@ -39,8 +39,6 @@ defmodule Dragon.Template.Evaluate do
       stdout([:green, "EEX Template ", :reset, :bright, file, :reset, :light_blue, " (#{layout})"])
 
   ##############################################################################
-  def evaluate(read_result, type, dragon, args \\ [])
-
   # process files with a layout directive slightly differently. First, process
   # the current file and get the output results. Then call, as an include,
   # the layout template, sending the current output into that as a page
@@ -50,7 +48,7 @@ defmodule Dragon.Template.Evaluate do
         :primary,
         %Dragon{} = d,
         args
-      ) do
+      ) when is_map(args) do
     processing(path, layout)
 
     with {:ok, content} <- read_template_body(path, offset),
@@ -60,14 +58,11 @@ defmodule Dragon.Template.Evaluate do
          {:ok, target, headers, output} <- posteval(d, headers, path, output),
          # then insert into layout
          {:ok, _, _, output} <-
-           include_file(Path.join(d.layouts, "_#{layout}"), d, :layout,
-             content: output,
-             parent: headers
-           ),
+           include_file(Path.join(d.layouts, "_#{layout}"), d, :layout, [content: output], headers),
          do: {:ok, target, headers, output}
   end
 
-  def evaluate({:ok, headers, path, offset, _}, type, %Dragon{} = d, args) do
+  def evaluate({:ok, headers, path, offset, _}, type, %Dragon{} = d, args) when is_map(args) do
     if type != :layout do
       processing(path)
     end
@@ -82,7 +77,7 @@ defmodule Dragon.Template.Evaluate do
 
   ################################################################################
   # we don't pay attention to layout here
-  def include_file(path, %Dragon{} = d, _, args) do
+  def include_file(path, %Dragon{} = d, _, args, page \\ nil) do
     case find_file(d.root, path) do
       {:ok, target} ->
         stderr([:light_black, "+ Including #{target}"])
@@ -91,9 +86,17 @@ defmodule Dragon.Template.Evaluate do
           read_template_header(target)
           |> handle_non_template(target)
 
-        args = check_include_args(inputs, Map.new(args))
+        parent_page =
+          if is_nil(page) do
+            Map.get(Dragon.frame_head() || %{}, :page) || %{}
+          else
+            page
+          end
+        args =
+          check_include_args(inputs, Map.new(args))
+          |> Map.put(:page, parent_page)
 
-        evaluate(inputs, :layout, d, Map.to_list(args))
+        evaluate(inputs, :layout, d, args)
 
       {:error, msg} ->
         raise ArgumentError, message: "Include failed: #{msg}"
@@ -171,9 +174,14 @@ defmodule Dragon.Template.Evaluate do
   defp evaluate_template(%Dragon{imports: imports}, path, template, env) do
     with_frame(
       fn prev ->
+        # drop content—that shouldn't go into frame state
+        page = (Map.get(env, :page) || %{}) |> Map.delete(:content)
         case prev do
-          nil -> %{prev: nil, this: path, top: path}
-          %{this: prev} = frame -> %{frame | prev: prev, this: path}
+          nil ->
+            %{prev: nil, this: path, top: path, page: page}
+
+          %{this: prev} = frame ->
+            %{frame | prev: prev, this: path, page: page}
         end
       end,
       fn frame ->

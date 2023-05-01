@@ -2,44 +2,99 @@ defmodule Dragon.Serve.Watcher do
   @moduledoc false
   use GenServer
   use Dragon.Context
+  import Rivet.Utils.Cli.Print
+  import Dragon.Tools.File, only: [get_true_path: 1]
   require Logger
 
   # def start(), do: Supervisor.start_link(__MODULE__, [strategy: :one_for_one, name: Dragon.Supervisor])
 
-  def start(), do: GenServer.start_link(__MODULE__, [], name: __MODULE__)
+  def start(opts), do: GenServer.start_link(__MODULE__, opts, name: __MODULE__)
 
-  def init(_) do
+  def init(opts) do
+    paths =
+      Enum.reduce(opts.watch, [], fn f, acc ->
+        case get_true_path(f) do
+          {:ok, path} ->
+            stderr([:green, "Watching path: #{path}"])
+            [path | acc]
+
+          _ ->
+            warn("Ignoring path: #{f}")
+            acc
+        end
+      end)
+
     with {:ok, root} <- Dragon.get(:root),
          {:ok, build} <- Dragon.get(:build),
          {:ok, base} <- Dragon.Tools.File.get_true_path(root),
-         {:ok, pid} <- FileSystem.start_link(dirs: [root]) do
+         {:ok, pid} <- FileSystem.start_link(dirs: [root] ++ paths) do
       FileSystem.subscribe(pid)
       build = String.slice(build, (String.length(root) + 1)..-1)
       {:ok, {String.length(base) + 1, base, root, String.length(build) - 1, build}}
     end
   end
 
-  def handle_info({:file_event, _, {path, _events}}, {rx, _, root, bx, build} = state) do
-    sliced = String.slice(path, rx..-1)
-    prefix = String.slice(sliced, 0..bx)
-    target = Path.join(root, sliced)
-    # despite absname and expand, this can still come in as a different root path because
-    # of funny filesystem business w/symlinks. So instead, just look for build
-    # and filter only on that
-    if prefix != build do
-      try do
-        # if an included file, we just do the whole tree
-        cond do
-          target == Path.join(root, "_dragon.yml") ->
-            # start over from the top
-            Dragon.Slayer.build(:all, root)
+  def is_meta?(path),
+    do:
+      not is_nil(
+        Path.split(path)
+        |> Enum.find(fn
+          "_" <> _ -> true
+          _ -> false
+        end)
+      )
 
-          Path.basename(target) |> String.at(0) == "_" ->
-            # rebuild everything but within current configuration
+  def resolve_target(path, {rx, base, root, bx, build}) do
+    target_base = String.slice(path, 0..(rx - 1)) |> Path.split() |> Path.join()
+
+    if target_base != base do
+      :all
+    else
+      sliced = String.slice(path, rx..-1)
+      prefix = String.slice(sliced, 0..bx)
+      # this shouldn't ever error, but just to be safe
+      if prefix == build do
+        :none
+      else
+        with {:ok, target} <- Dragon.Tools.File.find_file(root, sliced) do
+          cond do
+            target == Path.join(root, "_dragon.yml") ->
+              :rebuild
+
+            File.dir?(target) ->
+              :none
+
+            is_meta?(target) ->
+              {:ok, dpaths} = Dragon.get(:data_paths)
+
+              if String.starts_with?(target, Map.keys(dpaths)) do
+                :rebuild
+              else
+                :all
+              end
+
+            true ->
+              {:only, target}
+          end
+        end
+      end
+    end
+  end
+
+  def handle_info({:file_event, _, {path, _events}}, {_, _, root, _, _} = state) do
+    resolved = resolve_target(path, state)
+
+    if resolved != :none do
+      try do
+        case resolved do
+          :all ->
             with {:ok, dragon} <- Dragon.get(), do: Dragon.Slayer.rebuild(:all, dragon)
 
-          true ->
-            # or per-file
+          :rebuild ->
+            Dragon.Slayer.build(:all, root)
+
+          {:only, target} ->
+            # filter data and meta files
             with {:ok, dragon} <- Dragon.get() do
               case Dragon.Tools.File.file_type(target) do
                 {:ok, :file, target} ->
@@ -63,7 +118,9 @@ defmodule Dragon.Serve.Watcher do
     end
 
     {:noreply, state}
-  catch x, y ->
-    IO.inspect({x, y})
+  catch
+    x, y ->
+      IO.inspect({x, y}, label: "Caught watcher error:")
+      {:noreply, state}
   end
 end

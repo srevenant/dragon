@@ -18,7 +18,6 @@ defmodule Dragon.Tools.File do
         abort("Cannot open file '#{path}', cannot continue")
 
       {:error, :eisdir} ->
-        raise "narf"
         abort("Cannot open file '#{path}', it is a folder. Cannot continue")
 
       err ->
@@ -175,7 +174,7 @@ defmodule Dragon.Tools.File do
 
   # need an os-agnostic way to do this
   def get_true_path(path) do
-    with {p, 0} <- System.cmd("sh", ["-c", "cd #{path}; /bin/pwd -P"]),
+    with {p, 0} <- System.cmd("sh", ["-c", "cd #{path} && /bin/pwd -P"]),
          do: {:ok, String.trim(p)}
   end
 end
