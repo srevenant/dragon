@@ -47,7 +47,7 @@ defmodule Dragon.Template.Functions do
   defp one_slash(str), do: Regex.replace(~r|//+|, str, "/")
 
   ##############################################################################
-  def peek(path) do
+  def get_header(path) do
     with {:ok, path, root} <- fix_path(path),
          {:ok, path} <- find_file(root, path),
          {:ok, header, _, _, _} <- Dragon.Template.Read.read_template_header(path),
