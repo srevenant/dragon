@@ -75,7 +75,19 @@ defmodule Dragon.Template.Functions do
 
   ##############################################################################
   @isotime "%Y-%m-%dT%H:%M:%S.%f%z"
-  def date(d, fmt \\ @isotime) do
+  def date(d, fmt \\ @isotime)
+
+  def date(d, fmt) when is_binary(d) do
+    case DateTime.from_iso8601(d) do
+      {:ok, d, _} ->
+        date(d, fmt)
+
+      {:error, what} ->
+        raise Dragon.AbortError, message: "Unrecognized date string (not ISO 8601) #{d}: #{what}"
+    end
+  end
+
+  def date(d, fmt) do
     with {:ok, date} <- Calendar.strftime(d, fmt) do
       date
     end
