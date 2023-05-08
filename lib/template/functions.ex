@@ -55,6 +55,17 @@ defmodule Dragon.Template.Functions do
   end
 
   ##############################################################################
+  def get_data(path) do
+    with {:ok, path, _root} <- fix_path(path),
+         # future: update find_file so it can optionally handle folders, and add it
+         {:ok, dragon} <- Dragon.get(),
+         %Dragon{} = d <-
+           Dragon.Data.File.load(%Dragon{dragon | data: %{}}, %{type: "file", path: path}) do
+      Transmogrify.transmogrify(d.data)
+    end
+  end
+
+  ##############################################################################
   # move to Tools.File
   defp fix_path(path) do
     path = Path.join(Path.split(path))

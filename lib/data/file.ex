@@ -43,22 +43,25 @@ defmodule Dragon.Data.File do
       Enum.join(datapath, ".")
     ])
 
+    with {:ok, data} <- get_file_data(path),
+         do: put_into(dragon, [:data | datapath], data)
+  end
+
+  def get_file_data(path) do
     case Path.extname(path) do
       ".json" -> File.read!(path) |> Jason.decode()
       ".yml" -> YamlElixir.read_all_from_file(path)
       ".yaml" -> YamlElixir.read_all_from_file(path)
     end
     |> case do
-      # single map
       {:ok, [data]} ->
-        put_into(dragon, [:data | datapath], data)
+        {:ok, data}
 
-      # its a list not a map
       {:ok, [_ | _] = list} ->
-        put_into(dragon, [:data | datapath], list)
+        {:ok, list}
 
       {:ok, data} when is_map(data) ->
-        put_into(dragon, [:data | datapath], data)
+        {:ok, data}
 
       error ->
         IO.inspect(error, label: "Error parsing Data")

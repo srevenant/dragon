@@ -36,7 +36,7 @@ defmodule Dragon.Plugin do
         posteval(d, o, target, h, content, rest)
 
       other ->
-        error("Unexpected result from plugin:")
+        error("Unexpected result from plugin (#{module}):")
         IO.inspect(other, label: "RESULT")
         abort("Cannot continue")
     end

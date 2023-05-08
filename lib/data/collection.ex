@@ -9,6 +9,7 @@ defmodule Dragon.Data.Collection do
   import Dragon.Tools.Dict
 
   defstruct src: nil,
+            "@spec": nil,
             dst: nil,
             prev: nil,
             next: nil,
@@ -19,6 +20,7 @@ defmodule Dragon.Data.Collection do
 
   @type t :: %__MODULE__{
           src: nil | String.t(),
+          "@spec": nil | map(),
           dst: nil | String.t(),
           prev: nil | String.t(),
           next: nil | String.t(),
@@ -29,6 +31,12 @@ defmodule Dragon.Data.Collection do
         }
 
   def load(%Dragon{root: root} = dragon, %{type: "collection", path: path} = args) do
+    only =
+      case Map.get(args, :only) do
+        nil -> false
+        rx -> Regex.compile!(rx)
+      end
+
     fullpath = Path.join(root, path)
     into = get_into(dragon, args)
 
@@ -37,9 +45,17 @@ defmodule Dragon.Data.Collection do
         stdout([:green, "Indexing collection: ", :reset, :bright, path])
         noroot = drop_root(root, fullpath)
 
+        data = File.ls!(fullpath)
+
         data =
-          File.ls!(fullpath)
-          |> Enum.reduce([], &reduce_collection_files(fullpath, noroot, &1, &2))
+          if only != false do
+            Enum.filter(data, fn f -> Regex.match?(only, f) end)
+          else
+            data
+          end
+
+        data =
+          Enum.reduce(data, [], &reduce_collection_files(fullpath, noroot, &1, &2))
           |> Enum.sort_by(& &1.date_t)
           |> Enum.reduce({nil, []}, fn
             elem, {nil, acc} -> {elem, [elem | acc]}
@@ -68,20 +84,32 @@ defmodule Dragon.Data.Collection do
 
       {:ok, header, _, _, _} ->
         with {:ok, meta} <- Dragon.Template.Env.get_file_metadata("", path, header) do
-          struct(__MODULE__, Map.take(meta, [:title, :date, :date_t, :date_modified]))
+          # Map.take(meta, [:title, :date, :date_t, :date_modified, :"@spec"]))
+          struct(__MODULE__, meta)
         end
     end
   end
 
   ##############################################################################
   defp reduce_collection_files(_, _, "index.html", acc), do: acc
+  defp reduce_collection_files(_, _, "_" <> _template, acc), do: acc
 
   defp reduce_collection_files(full, base, file, acc) do
     target = Path.join(full, file)
-    localized = "/#{Path.join(base, file) |> Path.rootname()}"
 
     if File.regular?(target) do
-      [file_details(target) |> Map.merge(%{src: target, dst: localized}) | acc]
+      details = file_details(target)
+
+      # there are reasons. Just let it go :)
+      localized =
+        if Map.get(details, :"@spec")[:output] == "folder/index" do
+          "/#{Path.join(base, file) |> Path.rootname()}/"
+        else
+          # md ... blah
+          "/#{Path.join(base, Regex.replace(~r/\.md$/, file, ".html"))}"
+        end
+
+      [Map.merge(details, %{src: target, dst: localized}) | acc]
     else
       acc
     end

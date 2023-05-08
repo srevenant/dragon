@@ -42,6 +42,19 @@ Additional topics:
 
 <img src="docs/example.webp" alt="Example">
 
+## Known Issues
+
+* when running in dragon.serve development mode, something with
+  Bandit/Plug/SendFile/browser is keeping open files instead of closing them
+  between each query. This means eventually elixir runs out of file descriptors
+  and crashes.
+
+  For now, just restart.
+
+  We are looking into finding out what's keeping these open. (for those interested:
+  it happens in MacOS, Firefox or Chrome. If you close the browser, the files
+  are reaped back in by the beam).
+
 ## FAQ
 
 #### Aren't Static CMS's dead?

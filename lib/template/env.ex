@@ -49,7 +49,7 @@ defmodule Dragon.Template.Env do
            date_modified: posix_erl_to_datetime(stat.mtime),
            date: date,
            date_t: DateTime.to_unix(date),
-           title: get_title_from_file(origin),
+           title: nil,
            path: Dragon.Tools.File.drop_root(root, origin)
          }
 
@@ -61,11 +61,6 @@ defmodule Dragon.Template.Env do
 
   ##############################################################################
   @daterx ~r/(\d{2,4}[-_]\d{1,2}[-_]\d{1,2})([-_T]\d{1,2}:\d{1,2}(:\d{1,2})?([-+]?\d{2}:\d{2}|[A-Z]+)?)?[-_]/
-
-  defp get_title_from_file(origin) do
-    origin = Path.basename(origin) |> Path.rootname()
-    Regex.replace(@daterx, origin, "") |> String.replace("_", " ")
-  end
 
   defp get_posted_time(_, origin, %{date: date}), do: to_datetime(date, origin)
 

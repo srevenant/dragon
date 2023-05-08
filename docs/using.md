@@ -113,6 +113,7 @@ See also: [Example](../example/)
         from which the last modified time is taken. If it is a list of files,
         the date is the most recent of the set of files.
       - `get_header` — load the headermatter of a target dragon template
+      - `get_data` — load data from file
       - `markdownify` — convert a string to html.
       - `jsonify` — convert data to JSON
 
