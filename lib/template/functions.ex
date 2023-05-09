@@ -36,11 +36,15 @@ defmodule Dragon.Template.Functions do
         |> Path.join()
 
       ## TODO: create a post-process work queue of lambdas, and put this check there
-      if not File.regular?(build_target) do
-        warn("<path check> #{path} (#{build_target}) is not a file")
+      if not File.exists?(build_target) do
+        warn("<path check> #{path} (#{build_target}) is not valid")
       end
 
-      "/#{Path.split(path) |> Enum.join("/")}" |> one_slash()
+      path = "/#{Path.split(path) |> Enum.join("/")}" |> one_slash()
+      case Path.extname(path) do
+        "" -> path <> "/"
+        other -> path
+      end
     end
   end
 
