@@ -108,6 +108,9 @@ defmodule Dragon.Serve.Watcher do
                   Dragon.Scss.Evaluate.all(dragon, [target])
               end
             end
+
+          {:error, reason} ->
+            error(reason)
         end
       rescue
         err ->
