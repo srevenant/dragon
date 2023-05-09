@@ -81,10 +81,11 @@ defmodule Dragon.Serve.Watcher do
     end
   end
 
-  def handle_info({:file_event, _, {path, _events}}, {_, _, root, _, _} = state) do
+  def handle_info({:file_event, _pid, {path, events}}, {_, _, root, _, _} = state) do
+    actionable = :created in events or :modified in events
     resolved = resolve_target(path, state)
 
-    if resolved != :none do
+    if resolved != :none and actionable do
       try do
         case resolved do
           :all ->
