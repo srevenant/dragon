@@ -16,9 +16,11 @@ defmodule Dragon.Template.Functions do
   end
 
   ##############################################################################
+  def markdownify(nil), do: ""
   def markdownify(content) do
-    with {:ok, content, _} <- Earmark.as_html(content) do
-      content
+    case Earmark.as_html(content) do
+      {:ok, content, _} -> content
+      {:error, msg, deets} -> raise Dragon.AbortError, "markdownify: #{msg}; #{inspect(deets)}"
     end
   end
 
@@ -66,6 +68,13 @@ defmodule Dragon.Template.Functions do
          %Dragon{} = d <-
            Dragon.Data.File.load(%Dragon{dragon | data: %{}}, %{type: "file", path: path}) do
       Transmogrify.transmogrify(d.data)
+    end
+  end
+
+  def get_with_key(a, b) do
+    case Map.get(a, Transmogrify.As.as_key(b)) do
+      nil -> raise Dragon.AbortError, "Key '#{b}' not found"
+      result -> result
     end
   end
 
