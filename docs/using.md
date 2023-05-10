@@ -103,9 +103,10 @@ See also: [Example](../example/)
         Remember: metafiles (beginning with an underscore) are ignored unless
         included through some means such as this, so you can place these within
         your build tree without concern.
-      - `path` — a function that verifies files exist in the build folder, and
-        converts them to the absolute version of the file using the same logic
-        as is used with include.
+      - `path/1` — verifies the file exist in the build folder, and
+        converts the path to the absolute version of the file using the same
+        logic as is used with include.
+      - `canonical_path/0` — returns the canonical path to the parent file
       - `date {arg1} {format}` — convert a date (arg1) to a format (arg2)
         matching [Calendar.stftime()](https://hexdocs.pm/calendar/Calendar.Strftime.html) formatting.
         If no format is specified, it returns time in ISO 8601 format.
