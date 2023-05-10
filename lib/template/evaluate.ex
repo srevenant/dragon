@@ -43,6 +43,23 @@ defmodule Dragon.Template.Evaluate do
   # the current file and get the output results. Then call, as an include,
   # the layout template, sending the current output into that as a page
   # argument (@page.content)
+  def primary_frame(path, layout, func) do
+    with_frame(
+      fn
+        nil ->
+          %{origin: path, prev: nil, this: nil, page: nil}
+
+        _existing ->
+          raise Dragon.AbortError,
+            message: "Starting new execution frame but an existing one still exists!"
+      end,
+      fn frame ->
+        processing(path, layout)
+        func.(frame)
+      end
+    )
+  end
+
   def evaluate(
         {:ok, %{"@spec": %{layout: layout}} = headers, path, offset, _},
         :primary,
@@ -50,32 +67,38 @@ defmodule Dragon.Template.Evaluate do
         args
       )
       when is_map(args) do
-    processing(path, layout)
-
-    with {:ok, content} <- read_template_body(path, offset),
-         {:ok, env} <- Dragon.Template.Env.get_for(path, :primary, headers, d, args),
-         {:ok, output} <- evaluate_template(d, path, content, env),
-         # posteval first, before insertion by layout; for markdown/etc
-         {:ok, target, headers, output} <- posteval(d, headers, path, output),
-         # then insert into layout
-         {:ok, _, _, output} <-
-           include_file(
-             Path.join(d.layouts, "_#{layout}"),
-             d,
-             :layout,
-             [content: output],
-             headers
-           ),
-         do: {:ok, target, headers, output}
+    primary_frame(path, layout, fn _ ->
+      with {:ok, content} <- read_template_body(path, offset),
+           {:ok, env} <- Dragon.Template.Env.get_for(path, :primary, headers, d, args),
+           {:ok, output} <- evaluate_template(d, path, content, env),
+           # posteval first, before insertion by layout; for markdown/etc
+           {:ok, target, headers, output} <- posteval(d, headers, path, output),
+           # then insert into layout
+           {:ok, _, _, output} <-
+             include_file(
+               Path.join(d.layouts, "_#{layout}"),
+               d,
+               :layout,
+               [content: output],
+               headers
+             ),
+           do: {:ok, target, headers, output}
+    end)
   end
 
-  def evaluate({:ok, headers, path, offset, _}, type, %Dragon{} = d, args) when is_map(args) do
-    if type != :layout do
-      processing(path)
-    end
+  def evaluate({:ok, headers, path, offset, _}, :primary, %Dragon{} = d, args)
+      when is_map(args) do
+    primary_frame(path, nil, fn _ ->
+      with {:ok, content} <- read_template_body(path, offset),
+           {:ok, env} <- Dragon.Template.Env.get_for(path, :primary, headers, d, args),
+           {:ok, output} <- evaluate_template(d, path, content, env),
+           do: posteval(d, headers, path, output)
+    end)
+  end
 
+  def evaluate({:ok, headers, path, offset, _}, :layout, %Dragon{} = d, args) when is_map(args) do
     with {:ok, content} <- read_template_body(path, offset),
-         {:ok, env} <- Dragon.Template.Env.get_for(path, type, headers, d, args),
+         {:ok, env} <- Dragon.Template.Env.get_for(path, :layout, headers, d, args),
          {:ok, output} <- evaluate_template(d, path, content, env),
          do: posteval(d, headers, path, output)
   end
@@ -181,17 +204,18 @@ defmodule Dragon.Template.Evaluate do
   ##############################################################################
   defp evaluate_template(%Dragon{imports: imports}, path, template, env) do
     with_frame(
-      fn prev ->
-        # drop content—that shouldn't go into frame state
-        page = (Map.get(env, :page) || %{}) |> Map.delete(:content)
+      fn
+        nil ->
+          raise Dragon.AbortError, message: "Mid-frame execution without parent?"
 
-        case prev do
-          nil ->
-            %{prev: nil, this: path, top: path, page: page}
-
-          %{this: prev} = frame ->
-            %{frame | prev: prev, this: path, page: page}
-        end
+        frame ->
+          %{
+            frame
+            | prev: Map.get(frame, :this),
+              this: path,
+              # drop content—that shouldn't go into frame state
+              page: (Map.get(env, :page) || %{}) |> Map.delete(:content)
+          }
       end,
       fn frame ->
         evaluate_frame(frame, imports, path, template, env)

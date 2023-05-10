@@ -17,6 +17,7 @@ defmodule Dragon.Template.Functions do
 
   ##############################################################################
   def markdownify(nil), do: ""
+
   def markdownify(content) do
     case Earmark.as_html(content) do
       {:ok, content, _} -> content
@@ -26,6 +27,19 @@ defmodule Dragon.Template.Functions do
 
   ##############################################################################
   def jsonify(content), do: Jason.encode!(content)
+
+  ##############################################################################
+  def canonical_path() do
+    with {:ok, root} <- Dragon.get(:root),
+         %{origin: origin} <- Dragon.frame_head() do
+      path = drop_root(root, origin, absolute: true)
+      if String.ends_with?(path, "index.html") do
+        String.slice(path, 0..-11) <> "/"
+      else
+        path
+      end
+    end
+  end
 
   ##############################################################################
   def path("#" <> _id = fragment), do: fragment
@@ -43,9 +57,10 @@ defmodule Dragon.Template.Functions do
       end
 
       path = "/#{Path.split(path) |> Enum.join("/")}" |> one_slash()
+
       case Path.extname(path) do
         "" -> path <> "/"
-        other -> path
+        _ -> path
       end
     end
   end
