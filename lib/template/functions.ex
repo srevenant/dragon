@@ -17,6 +17,7 @@ defmodule Dragon.Template.Functions do
 
   ##############################################################################
   def markdownify(nil), do: ""
+  def markdownify(x) when is_number(x), do: x
 
   def markdownify(content) do
     case Earmark.as_html(content) do

@@ -82,6 +82,8 @@ defmodule Dragon.Serve.Watcher do
   end
 
   def handle_info({:file_event, _pid, {path, events}}, {_, _, root, _, _} = state) do
+    # TODO: :renamed is both for deleted and moved! (gurh) — check if file exists
+    # or not to decide actionable
     actionable = :created in events or :modified in events
     resolved = resolve_target(path, state)
 
