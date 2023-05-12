@@ -99,6 +99,7 @@ defmodule Dragon.Template.Evaluate do
 
   defp evaluate_frame(path, offset, headers, %Dragon{} = d, args) do
     headers = clean_data(headers)
+
     with {:ok, content} <- read_template_body(path, offset),
          {:ok, page} <- get_file_metadata(d.root, path, headers, args),
          env <- Map.merge(d.data, %{dragon: d, page: page}),

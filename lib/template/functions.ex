@@ -30,10 +30,20 @@ defmodule Dragon.Template.Functions do
   def jsonify(content), do: Jason.encode!(content)
 
   ##############################################################################
+  @doc """
+  TODO FOR path and canonical_path:
+
+  * figure out how to handle markdown suffix conversion intelligently
+  * peek into target file and see if it has layout/folder in @spec and
+    drop index.html respectively
+  """
   def canonical_path() do
     with {:ok, root} <- Dragon.get(:root),
          %{origin: origin} <- Dragon.frame_head() do
       path = drop_root(root, origin, absolute: true)
+
+      path =
+        if String.ends_with?(path, ".md"), do: String.slice(path, 0..-4) <> ".html", else: path
 
       if String.ends_with?(path, "index.html") do
         String.slice(path, 0..-11) <> "/"
