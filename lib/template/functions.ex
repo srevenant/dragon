@@ -34,6 +34,7 @@ defmodule Dragon.Template.Functions do
     with {:ok, root} <- Dragon.get(:root),
          %{origin: origin} <- Dragon.frame_head() do
       path = drop_root(root, origin, absolute: true)
+
       if String.ends_with?(path, "index.html") do
         String.slice(path, 0..-11) <> "/"
       else

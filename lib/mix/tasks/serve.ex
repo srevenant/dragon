@@ -4,7 +4,6 @@ defmodule Mix.Tasks.Dragon.Serve do
   import Rivet.Utils.Cli.Print
   import Rivet.Utils.Cli
   use Mix.Task
-  @default_port 4040
 
   # if only we had a decent argparser... (python's is decent)
   @opts [
@@ -28,7 +27,7 @@ defmodule Mix.Tasks.Dragon.Serve do
     end
   end
 
-  defp syntax(msg \\ ""),
+  defp syntax(msg),
     do:
       die(
         ["Syntax: mix dragon.serve {target} [--port=port] [--watch=file,folder,...]\n"] ++

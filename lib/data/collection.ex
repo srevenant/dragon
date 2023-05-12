@@ -83,7 +83,7 @@ defmodule Dragon.Data.Collection do
         abort("Unable to load file header (#{path}): #{reason}")
 
       {:ok, header, _, _, _} ->
-        with {:ok, meta} <- Dragon.Template.Env.get_file_metadata("", path, header) do
+        with {:ok, meta} <- Dragon.Template.Env.get_file_metadata("", path, header, %{}) do
           # Map.take(meta, [:title, :date, :date_t, :date_modified, :"@spec"]))
           struct(__MODULE__, meta)
         end

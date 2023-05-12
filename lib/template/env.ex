@@ -4,59 +4,43 @@ defmodule Dragon.Template.Env do
   """
   use Dragon.Context
   import Rivet.Utils.Time, only: [utc_offset: 1]
-  import Dragon.Data, only: [clean_data: 1]
 
   ##############################################################################
   @doc """
   Get env/context for a file
   """
-  def get_for(origin, type, header, dragon, args) do
-    parent_page = Map.get(args, :page, %{})
-
-    with {:ok, data} <- get_file_metadata(dragon.root, origin, header) do
-      args = Map.new(args)
-
-      args =
-        case {type, args} do
-          {:layout, %{parent: parent}} -> Map.delete(args, :parent) |> Map.merge(parent)
-          _ -> args
-        end
-
-      Map.get(data, :"@page", %{args: []})
-      |> Map.get(:args, [])
-      |> Enum.each(fn required ->
-        if not Map.has_key?(args, String.to_atom(required)) do
-          abort("Template #{origin} requires input arg '#{required}' which is missing")
-        end
-      end)
-
-      page = Map.merge(data, parent_page) |> Map.merge(Map.delete(args, :page))
-
-      {:ok, Map.merge(dragon.data, %{dragon: dragon, page: page})}
-    end
-  end
+  #
+  # def get_for(origin, header, dragon, args) when is_map(args) do
+  #   header = clean_data(header)
+  #   with {:ok, page} <- get_file_metadata(dragon.root, origin, header, args) do
+  #     {:ok, Map.merge(dragon.data, %{dragon: dragon, page: page})}
+  #   end
+  # end
 
   ##############################################################################
-  def get_file_metadata(root, origin, data) when is_map(data) do
-    data = clean_data(data)
+  def get_file_metadata(root, origin, header, args) when is_map(header) and is_map(args) do
+    parent_header = Map.get(args, :page, %{})
+    args = Map.delete(args, :page)
 
     {:ok,
      case File.stat(origin) do
        {:ok, stat} ->
-         date = get_posted_time(stat.ctime, origin, data)
+         date = get_posted_time(stat.ctime, origin, header)
 
          %{
            date_modified: posix_erl_to_datetime(stat.mtime),
-           date: date,
            date_t: DateTime.to_unix(date),
            title: nil,
            path: Dragon.Tools.File.drop_root(root, origin)
          }
+         |> Map.merge(parent_header)
+         |> Map.merge(header)
+         |> Map.merge(args)
+         |> Map.put(:date, date)
 
        _ ->
          abort("file disappeared during processing?")
-     end
-     |> Map.merge(Map.delete(data, :date))}
+     end}
   end
 
   ##############################################################################

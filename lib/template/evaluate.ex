@@ -1,5 +1,7 @@
 defmodule Dragon.Template.Evaluate do
   use Dragon.Context
+  import Dragon.Template.Env, only: [get_file_metadata: 4]
+  import Dragon.Data, only: [clean_data: 1]
   import Dragon.Template.Read
   import Dragon.Tools.File
   # Todo: after moved to Transmogrify remove import
@@ -43,7 +45,7 @@ defmodule Dragon.Template.Evaluate do
   # the current file and get the output results. Then call, as an include,
   # the layout template, sending the current output into that as a page
   # argument (@page.content)
-  def primary_frame(path, layout, func) do
+  def origin_frame(path, layout, func) do
     with_frame(
       fn
         nil ->
@@ -67,13 +69,10 @@ defmodule Dragon.Template.Evaluate do
         args
       )
       when is_map(args) do
-    primary_frame(path, layout, fn _ ->
-      with {:ok, content} <- read_template_body(path, offset),
-           {:ok, env} <- Dragon.Template.Env.get_for(path, :primary, headers, d, args),
-           {:ok, output} <- evaluate_template(d, path, content, env),
-           # posteval first, before insertion by layout; for markdown/etc
-           {:ok, target, headers, output} <- posteval(d, headers, path, output),
-           # then insert into layout
+    origin_frame(path, layout, fn _ ->
+      with {:ok, target, headers, output} <-
+             evaluate_frame(path, offset, headers, d, args),
+           # then insert into layout as an include
            {:ok, _, _, output} <-
              include_file(
                Path.join(d.layouts, "_#{layout}"),
@@ -87,23 +86,25 @@ defmodule Dragon.Template.Evaluate do
   end
 
   def evaluate({:ok, headers, path, offset, _}, :primary, %Dragon{} = d, args)
-      when is_map(args) do
-    primary_frame(path, nil, fn _ ->
-      with {:ok, content} <- read_template_body(path, offset),
-           {:ok, env} <- Dragon.Template.Env.get_for(path, :primary, headers, d, args),
-           {:ok, output} <- evaluate_template(d, path, content, env),
-           do: posteval(d, headers, path, output)
-    end)
-  end
+      when is_map(args),
+      do:
+        origin_frame(path, nil, fn _ ->
+          evaluate_frame(path, offset, headers, d, args)
+        end)
 
-  def evaluate({:ok, headers, path, offset, _}, :layout, %Dragon{} = d, args) when is_map(args) do
+  def evaluate({:ok, headers, path, offset, _}, :layout, %Dragon{} = d, args) when is_map(args),
+    do: evaluate_frame(path, offset, headers, d, args)
+
+  def evaluate({:error, reason}, _, _, _), do: abort("Unable to continue: #{reason}")
+
+  defp evaluate_frame(path, offset, headers, %Dragon{} = d, args) do
+    headers = clean_data(headers)
     with {:ok, content} <- read_template_body(path, offset),
-         {:ok, env} <- Dragon.Template.Env.get_for(path, :layout, headers, d, args),
+         {:ok, page} <- get_file_metadata(d.root, path, headers, args),
+         env <- Map.merge(d.data, %{dragon: d, page: page}),
          {:ok, output} <- evaluate_template(d, path, content, env),
          do: posteval(d, headers, path, output)
   end
-
-  def evaluate({:error, reason}, _, _, _), do: abort("Unable to continue: #{reason}")
 
   ################################################################################
   # we don't pay attention to layout here
@@ -218,7 +219,7 @@ defmodule Dragon.Template.Evaluate do
           }
       end,
       fn frame ->
-        evaluate_frame(frame, imports, path, template, env)
+        exec_frame(frame, imports, path, template, env)
       end
     )
   end
@@ -231,7 +232,7 @@ defmodule Dragon.Template.Evaluate do
   def nofile_line([]), do: 0
 
   # sort | reverse
-  defp evaluate_frame(frame, imports, path, template, env) do
+  defp exec_frame(frame, imports, path, template, env) do
     try do
       env = Map.put(env, :frame, frame)
       {:ok, EEx.eval_string(imports <> template, assigns: Map.to_list(env))}
