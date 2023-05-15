@@ -51,6 +51,7 @@ defmodule Dragon.Template.Functions do
         path
       end
     end
+    |> one_slash()
   end
 
   ##############################################################################
@@ -64,9 +65,7 @@ defmodule Dragon.Template.Functions do
         |> Path.join()
 
       ## TODO: create a post-process work queue of lambdas, and put this check there
-      if not File.exists?(build_target) do
-        warn("<path check> #{path} (#{build_target}) is not valid")
-      end
+      if not path_exists?(build_target), do: warn("<path check> #{path} (#{build_target}) is not valid")
 
       path = "/#{Path.split(path) |> Enum.join("/")}" |> one_slash()
 
@@ -76,6 +75,19 @@ defmodule Dragon.Template.Functions do
       end
     end
   end
+
+  # try directories and files; not very precise, but :shrug:
+  defp path_exists?(target),
+    do: exists_as_file?(target) or exists_as_indexed_folder?(target) or exists_as_folder?(target)
+
+  defp exists_as_file?(target), do: File.exists?(target)
+
+  defp exists_as_indexed_folder?(target),
+    do: String.ends_with?(target, "index.html") and File.dir?(String.slice(target, 0..-11))
+
+  # technically we should peek into the file's headers to see if it has folder/index, but for now just guess
+  defp exists_as_folder?(target),
+    do: String.ends_with?(target, ".html") and File.dir?(String.slice(target, 0..-6))
 
   defp one_slash(str), do: Regex.replace(~r|//+|, str, "/")
 
