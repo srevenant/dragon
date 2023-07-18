@@ -14,11 +14,12 @@ defmodule Dragon.Plugin.Redirects do
   """
   use Dragon.Context
   import Dragon.Tools.File
+  import Dragon.Template.Functions, only: [eex: 1]
   @behaviour Dragon.Plugin
 
   @impl Dragon.Plugin
   def run(%Dragon{} = _d, _origin, target, %{redirect_to: dest}, _content) do
-    {:ok, target, redirect_body(dest)}
+    {:ok, target, redirect_body(eex(dest))}
   end
 
   def run(%Dragon{} = _d, _origin, target, %{redirect_from: redirects} = h, content) do

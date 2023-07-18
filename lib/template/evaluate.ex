@@ -204,7 +204,7 @@ defmodule Dragon.Template.Evaluate do
   end
 
   ##############################################################################
-  defp evaluate_template(%Dragon{imports: imports}, path, template, env) do
+  def evaluate_template(%Dragon{imports: imports}, path, template, env) do
     with_frame(
       fn
         nil ->

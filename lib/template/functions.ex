@@ -4,6 +4,8 @@ defmodule Dragon.Template.Functions do
   """
   import Dragon.Tools.File, only: [drop_root: 3, find_file: 2]
   use Dragon.Context
+  import Rivet.Utils.Cli.Print
+  import Dragon.Template.Evaluate, only: [evaluate_template: 4]
 
   ##############################################################################
   def include(path, args \\ []) do
@@ -28,6 +30,13 @@ defmodule Dragon.Template.Functions do
 
   ##############################################################################
   def jsonify(content), do: Jason.encode!(content)
+
+  # Note: eex doesn't run plugins, by design, because plugins can run this
+  def eex(content) do
+    with {:ok, d} <- Dragon.get(),
+         {:ok, output} <- evaluate_template(d, "evaleex", content, d.data),
+         do: String.trim(output)
+  end
 
   ##############################################################################
   @doc """
@@ -55,25 +64,39 @@ defmodule Dragon.Template.Functions do
   end
 
   ##############################################################################
+  def is_url(path), do: Regex.match?(~r/^([a-z]+):\/\//, path)
+
   def path("#" <> _id = fragment), do: fragment
 
   def path(dest) do
-    with {:ok, path, root} <- fix_path(dest),
-         {:ok, build} <- Dragon.get(:build) do
-      build_target =
-        (Path.split(build) ++ (drop_root(root, path, absolute: false) |> Path.split()))
-        |> Path.join()
+    # don't change URLs, only paths
+    if is_url(dest) do
+      dest
+    else
+      with {:ok, path, root} <- fix_path(dest),
+           {:ok, build} <- Dragon.get(:build) do
+        build_target =
+          (Path.split(build) ++ (drop_root(root, path, absolute: false) |> Path.split()))
+          |> Path.join()
 
-      ## TODO: create a post-process work queue of lambdas, and put this check there
-      if not path_exists?(build_target), do: warn("<path check> #{path} (#{build_target}) is not valid")
+        ## TODO: create a post-process work queue of lambdas, and put this check there
+        if not path_exists?(build_target),
+          do: warn("<path check> #{path} (#{build_target}) is not valid")
 
-      path = "/#{Path.split(path) |> Enum.join("/")}" |> one_slash()
+        path = "/#{Path.split(path) |> Enum.join("/")}" |> one_slash()
 
-      case Path.extname(path) do
-        "" -> path <> "/"
-        _ -> path
+        case Path.extname(path) do
+          "" -> path <> "/"
+          _ -> path
+        end
       end
     end
+  end
+
+  def canonical_url(url, dest) do
+    if is_url(dest),
+      do: dest,
+      else: url <> dest
   end
 
   # try directories and files; not very precise, but :shrug:
