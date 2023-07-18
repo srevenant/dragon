@@ -117,6 +117,9 @@ See also: [Example](../example/)
       - `get_data` — load data from file
       - `markdownify` — convert a string to html.
       - `jsonify` — convert data to JSON
+      - `eex` — evaluate the data as an eex template (useful for embedding eex
+        data in headermatter—if this is the case, just explicitly call
+        `<%= eex @page.some_value %>`
 
 - ___Elixir/EEX Template imports___ You can include additional standard elixir
   modules modules through the dragon config variable `imports:` which takes
