@@ -48,6 +48,8 @@ defmodule Dragon.Plugin.Redirects do
 
   defp create_redirects(_, _, []), do: :ok
 
+  # redirects aren't bad anymore for SEO... is this still needed?
+  # probably not: <meta name="robots" content="noindex">
   def redirect_body(canonical_url) do
     """
     <!DOCTYPE html>
@@ -56,7 +58,6 @@ defmodule Dragon.Plugin.Redirects do
     <title>Redirecting&hellip;</title>
     <link rel="canonical" href="#{canonical_url}">
     <meta http-equiv="Refresh" content="0; URL=#{canonical_url}" />
-    <meta name="robots" content="noindex">
     </head>
     <body>
     <h1>Redirecting</h1>
