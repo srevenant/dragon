@@ -46,7 +46,7 @@ defmodule Dragon do
   def start_link(init), do: GenServer.start_link(__MODULE__, init, name: __MODULE__)
 
   ##############################################################################
-  @spec init(target :: String.t()) :: Dragon.t()
+  # @spec init(target :: String.t()) :: Dragon.t()
   def init(args) do
     stdout([:light_blue, :bright, "Starting Dragon CMS"])
     {:ok, struct(__MODULE__, args)}
@@ -92,7 +92,7 @@ defmodule Dragon do
             |> update_plugins()
             |> Dragon.Data.load_data()
             |> case do
-              {:error, msg} -> {:reply, {:error, msg}, state}
+              # {:error, msg} -> {:reply, {:error, msg}, state}
               {:ok, %Dragon{} = dragon} -> {:reply, {:ok, dragon}, dragon}
             end
 
@@ -146,7 +146,7 @@ defmodule Dragon do
       |> Enum.map(&"import #{&1}")
       |> Enum.join(";")
 
-    %Dragon{d | imports: "<% #{imports} %>\n"}
+    %Dragon{d | imports: "<% #{imports} %>"}
   end
 
   defp update_plugins(%Dragon{plugins: plugs} = d) when is_list(plugs),

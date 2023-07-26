@@ -135,7 +135,7 @@ defmodule Dragon.Template.Functions do
 
   def get_with_key(a, b) do
     case Map.get(a, Transmogrify.As.as_key(b)) do
-      nil -> raise Dragon.AbortError, "Key '#{b}' not found"
+      nil -> raise Dragon.AbortError, "Key '#{b}' not found in: #{inspect(a)}"
       result -> result
     end
   end

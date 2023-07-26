@@ -27,6 +27,7 @@ defmodule Mix.Tasks.Dragon.Serve do
     end
   end
 
+  @dialyzer {:nowarn_function, [syntax: 1]}
   defp syntax(msg),
     do:
       die(

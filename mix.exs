@@ -46,6 +46,7 @@ defmodule Dragon.MixProject do
       {:transmogrify, "~> 1.1.2"},
       {:file_system, "~> 0.2"},
       {:yaml_elixir, "~> 2.8.0"},
+      {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]
   end

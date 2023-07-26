@@ -14,12 +14,15 @@ defmodule Dragon.Plugin do
               {:error, reason :: String.t()}
               | {:ok, buildfile :: String.t(), content :: String.t()}
 
+  @spec posteval(Dragon.t(), String.t(), String.t(), headers :: map(), String.t()) ::
+    {:ok, String.t(), headers :: map(), String.t()}
+
   # add other stages here as we need/want them
   def posteval(%Dragon{plugins: %{posteval: list}} = dragon, origin, target, headers, content)
       when is_list(list),
       do: posteval(dragon, origin, target, headers, content, list)
 
-  def posteval(_, _, target, _, content), do: {:ok, target, content}
+  def posteval(_, _, target, headers, content), do: {:ok, target, headers, content}
 
   ##############################################################################
   def posteval(d, o, t, h, c, [module | rest]) do

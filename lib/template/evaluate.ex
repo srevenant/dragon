@@ -260,6 +260,7 @@ defmodule Dragon.Template.Evaluate do
     end
   end
 
+  @dialyzer {:nowarn_function, [abort_nofile_error: 4]}
   def abort_nofile_error(a, b, c, d) do
     nofile_error(a, b, c, d)
     abort("Cannot continue")
