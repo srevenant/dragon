@@ -160,7 +160,12 @@ defmodule Dragon.Template.Functions do
   end
 
   ##############################################################################
-  @isotime "%Y-%m-%dT%H:%M:%S.%f%z"
+  # note: Calendar.strftime %z doesn't work for ISO time, because %z returns
+  # [+-]HHMM, and ISO time wants [+-]HH:MM. Unfortunately Calendar.strftime
+  # has no option for the latter, and looks to be a dead projects, with stale
+  # PRs untouched for years.
+  # this assumes your times are always coming in as UTC, which may not be true.
+  @isotime "%Y-%m-%dT%H:%M:%SZ"
   def date(d, fmt \\ @isotime)
 
   def date(d, fmt) when is_binary(d) do
