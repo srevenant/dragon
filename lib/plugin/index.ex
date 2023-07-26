@@ -15,7 +15,7 @@ defmodule Dragon.Plugin do
               | {:ok, buildfile :: String.t(), content :: String.t()}
 
   @spec posteval(Dragon.t(), String.t(), String.t(), headers :: map(), String.t()) ::
-    {:ok, String.t(), headers :: map(), String.t()}
+          {:ok, String.t(), headers :: map(), String.t()}
 
   # add other stages here as we need/want them
   def posteval(%Dragon{plugins: %{posteval: list}} = dragon, origin, target, headers, content)

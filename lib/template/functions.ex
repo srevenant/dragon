@@ -48,7 +48,7 @@ defmodule Dragon.Template.Functions do
   """
   def canonical_path() do
     with {:ok, root} <- Dragon.get(:root),
-         %{origin: origin} <- Dragon.frame_head() do
+         %{origin: origin} = head <- Dragon.frame_head() do
       path = drop_root(root, origin, absolute: true)
 
       path =
@@ -59,9 +59,20 @@ defmodule Dragon.Template.Functions do
       else
         path
       end
+      |> file_is_folder(head)
     end
     |> one_slash()
   end
+
+  defp file_is_folder(path, %{page: %{"@spec": %{output: "folder/index"}}}) do
+    if String.ends_with?(path, ".html") do
+      String.slice(path, 0..-6) <> "/"
+    else
+      path
+    end
+  end
+
+  defp file_is_folder(path, head), do: path
 
   ##############################################################################
   def is_url(path), do: Regex.match?(~r/^([a-z]+):\/\//, path)
