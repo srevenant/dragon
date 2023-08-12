@@ -1,1 +1,0 @@
-../revenant/web/ridersofthestars.com
