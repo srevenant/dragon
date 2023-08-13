@@ -99,7 +99,7 @@ defmodule Dragon.Serve.Watcher do
           {:only, target} ->
             # filter data and meta files
             with {:ok, dragon} <- Dragon.get() do
-              case Dragon.Tools.File.file_type(target) do
+              case Dragon.Tools.File.file_type(dragon.root,target) do
                 {:ok, :file, target} ->
                   Dragon.Tools.File.Synchronize.synchronize(dragon, [target])
 

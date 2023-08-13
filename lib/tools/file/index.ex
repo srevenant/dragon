@@ -146,12 +146,12 @@ defmodule Dragon.Tools.File do
   template. Otherwise look at the file extension.
   """
   def scan_file(dragon, path, _) do
-    with {:ok, type, rel_path} <- file_type(path) do
+    with {:ok, type, rel_path} <- file_type(dragon.root,path) do
       put_into(dragon, [:files, type, rel_path], [])
     end
   end
 
-  def file_type(path) do
+  def file_type(root,path) do
     type =
       with_open_file(path, fn fd ->
         case IO.binread(fd, 10) do
@@ -166,8 +166,7 @@ defmodule Dragon.Tools.File do
         end
       end)
 
-    [_ | rel_path] = Path.split(path)
-    rel_path = Path.join(rel_path)
+    rel_path = drop_root(root,path)
 
     {:ok, type, rel_path}
   end

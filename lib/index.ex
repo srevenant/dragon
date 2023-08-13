@@ -78,6 +78,7 @@ defmodule Dragon do
 
   @doc false
   def handle_call({:configure, root}, _, state) do
+    root=Path.expand(root)
     Application.put_env(:dragon, :from, root)
 
     case Dragon.Tools.File.find_index_file(root, @config_file) do
