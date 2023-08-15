@@ -4,7 +4,7 @@ defmodule Dragon.MixProject do
   def project do
     [
       app: :dragon,
-      version: "1.1.0",
+      version: "1.1.1",
       elixir: "~> 1.14",
       description: "Content Management System",
       source_url: "https://github.com/srevenant/dragon",
