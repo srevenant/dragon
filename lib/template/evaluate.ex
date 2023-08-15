@@ -24,7 +24,7 @@ defmodule Dragon.Template.Evaluate do
       read_template_header(path)
       |> evaluate(:primary, d, %{})
       |> validate()
-      |> commit_file()
+      |> commit_file(d.root)
 
       all(d, rest)
     end
@@ -45,7 +45,7 @@ defmodule Dragon.Template.Evaluate do
   # the current file and get the output results. Then call, as an include,
   # the layout template, sending the current output into that as a page
   # argument (@page.content)
-  def origin_frame(path, layout, func) do
+  defp origin_frame(d, path, layout, func) do
     with_frame(
       fn
         nil ->
@@ -56,7 +56,7 @@ defmodule Dragon.Template.Evaluate do
             message: "Starting new execution frame but an existing one still exists!"
       end,
       fn frame ->
-        processing(path, layout)
+        processing(drop_root(d.root, path), layout)
         func.(frame)
       end
     )
@@ -69,7 +69,7 @@ defmodule Dragon.Template.Evaluate do
         args
       )
       when is_map(args) do
-    origin_frame(path, layout, fn _ ->
+    origin_frame(d, path, layout, fn _ ->
       with {:ok, target, headers, output} <-
              evaluate_frame(path, offset, headers, d, args),
            # then insert into layout as an include
@@ -88,7 +88,7 @@ defmodule Dragon.Template.Evaluate do
   def evaluate({:ok, headers, path, offset, _}, :primary, %Dragon{} = d, args)
       when is_map(args),
       do:
-        origin_frame(path, nil, fn _ ->
+        origin_frame(d, path, nil, fn _ ->
           evaluate_frame(path, offset, headers, d, args)
         end)
 
@@ -112,7 +112,7 @@ defmodule Dragon.Template.Evaluate do
   def include_file(path, %Dragon{} = d, _, args, page \\ nil) do
     case find_file(d.root, path) do
       {:ok, target} ->
-        stderr([:light_black, "+ Including #{target}"])
+        stderr([:light_black, "+ Including #{drop_root(d.root, target)}"])
 
         inputs =
           read_template_header(target)
@@ -182,8 +182,8 @@ defmodule Dragon.Template.Evaluate do
   end
 
   ##############################################################################
-  def commit_file({:ok, path, headers, content}) do
-    stderr([:light_black, "✓ Saving ", :reset, path])
+  def commit_file({:ok, path, headers, content}, root) do
+    stderr([:light_black, "✓ Saving ", :reset, drop_root(root, path)])
 
     file =
       case headers do

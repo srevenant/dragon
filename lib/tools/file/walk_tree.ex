@@ -1,8 +1,9 @@
 defmodule Dragon.Tools.File.WalkTree.NoMatch do
   use Dragon.Context
+  import Dragon.Tools.File, only: [drop_root: 2]
 
   def no_match(dragon, path, _) do
-    info("Ignoring file: #{path}")
+    info("Ignoring file: #{drop_root(dragon.root, path)}")
     dragon
   end
 end
@@ -12,6 +13,7 @@ defmodule Dragon.Tools.File.WalkTree do
   File handling tools.
   """
   use Dragon.Context
+  import Dragon.Tools.File, only: [drop_root: 2]
   import Dragon.Tools.File.WalkTree.NoMatch
 
   ##############################################################################
@@ -52,7 +54,7 @@ defmodule Dragon.Tools.File.WalkTree do
         dragon
 
       ignore_file?(fname, opts.ignore) ->
-        stderr([:light_black, "Ignoring file: #{fname}"])
+        stderr([:light_black, "Ignoring file: #{drop_root(root, fname)}"])
         dragon
 
       true ->

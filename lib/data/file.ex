@@ -3,13 +3,14 @@ defmodule Dragon.Data.File do
   Tools for loading data files (yml)
   """
   use Dragon.Context
+  import Dragon.Tools.File, only: [drop_root: 2]
   import Dragon.Tools.File.WalkTree
   import Dragon.Tools.Dict
   import Dragon.Data, only: [get_into: 2, data_path: 2]
 
   # def load(dragon, args, rest, forward) do
   def load(%Dragon{} = dragon, %{type: "file", path: path} = args) do
-    stdout([:green, "Loading data", :reset, " from ", :bright, path])
+    stdout([:green, "Loading data", :reset, " from ", :bright, drop_root(dragon.root, path)])
     prefix = get_into(dragon, args)
 
     %Dragon{dragon | data_paths: Map.put(dragon.data_paths, Path.join(dragon.root, path), [])}
@@ -34,7 +35,7 @@ defmodule Dragon.Data.File do
       "Loading ",
       :reset,
       :bright,
-      path,
+      drop_root(dragon.root, path),
       :reset,
       :light_black,
       " into data path: ",

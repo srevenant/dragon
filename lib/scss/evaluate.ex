@@ -11,7 +11,7 @@ defmodule Dragon.Scss.Evaluate do
 
   def all(%Dragon{} = d, [file | rest]) do
     with {:ok, path} <- find_file(d.root, file) do
-      stdout([:green, "SCSS ", :reset, :bright, path])
+      stdout([:green, "SCSS ", :reset, :bright, file])
 
       ## TODO: Make a runtime argument for adding this — this will minify
       ## the CSS after its run. During a separate stage perhaps
@@ -19,7 +19,7 @@ defmodule Dragon.Scss.Evaluate do
       case Sass.compile_file(path) do
         {:ok, content} ->
           build_path = Path.join(d.build, drop_root(d.root, Path.rootname(path) <> ".css"))
-          stderr([:light_black, "✓ Saving ", :reset, build_path])
+          stderr([:light_black, "✓ Saving ", :reset, drop_root(d.root, build_path)])
           write_file(build_path, content)
 
         {:error, reason} ->

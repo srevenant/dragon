@@ -6,7 +6,7 @@ defmodule Dragon.Slayer do
   """
 
   def build(:all, target) do
-    with {:ok, dragon} <- Dragon.configure(target), do: rebuild(:all, dragon)
+    with {:ok, dragon} <- Dragon.configure(Path.expand(target)), do: rebuild(:all, dragon)
   end
 
   def rebuild(:all, dragon) do
