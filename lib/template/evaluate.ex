@@ -158,11 +158,20 @@ defmodule Dragon.Template.Evaluate do
     end)
     |> Enum.reduce(args, fn spec, args ->
       case spec do
-        {:required, key} when is_map_key(args, key) -> args
-        {:required, key} -> raise ArgumentError, message: "Include missing arg: #{key}"
-        {:default, key, _} when is_map_key(args, key) -> args
-        {:default, key, value} -> Map.put(args, key, value)
-        {:optional, _} -> args
+        {:required, key} when is_map_key(args, key) ->
+          args
+
+        {:required, key} ->
+          raise ArgumentError, message: "Include missing arg: #{key}"
+
+        {:default, key, value} when is_map_key(args, key) ->
+          if not is_nil(args[key]), do: args, else: Map.put(args, key, value)
+
+        {:default, key, value} ->
+          Map.put(args, key, value)
+
+        {:optional, _} ->
+          args
       end
     end)
   end
