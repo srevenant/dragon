@@ -41,8 +41,8 @@ See also: [Example](../example/)
   origin type. This means you can use keyWord, KeyWord, or key_word, and all of
   these will result as `:key_word`
 
-  - Data imports are specified in the dragon config file, and may be one of two
-    types: _file_ (yml) and _collection_ (future: _ecto_).
+  - Data imports are specified in the dragon config file, and may be one of the
+    following types: _file_ (yml), _collection_ (of files), or _loader_ (elixir).
   - __File__ data targets should be folders. All yml, yaml, and json files' contents
     are loaded into the dragon context, matching file/folder hierarchy to a
     deep-map structure. Location within the context is assigned in the data
@@ -61,6 +61,34 @@ See also: [Example](../example/)
     a nil value. So if your data tree might have `x.y.z` but `y` is undefined,
     and this causes an error. Instead you can use `x[:y][:z]` to get the same
     behavior as before.
+  - __Loader__ references an elixir file which is evaluated, and the output
+    of that becomes the data. The arguments to define this are:
+
+      ```
+      - type: loader
+        path: _loader/my_module.ex
+        into: mything
+      ```
+
+    The elixir file must be a valid module, with a function:
+
+      ```
+      @spec load(Dragon.t()) :: {:ok, data} | {:error, "reason"}
+      ```
+
+    Example:
+
+      ```
+      defmodule MyLoader do
+        def load(_dragon) do
+          {:ok, %{}}
+        end
+      end
+      ```
+
+    Because of the limitations of dependencies in elixir projects, you cannot
+    have dependencies beyond what is already in Dragon. If you need additional
+    deps, add them to the dragon deps.
 
 - ___Templates___ —
   - Any file can be a template, if it begins with `--- dragon-1.0`
