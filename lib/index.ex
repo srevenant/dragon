@@ -86,13 +86,20 @@ defmodule Dragon do
           {:ok, [%{"version" => 1.0} = config]} ->
             root = Path.dirname(path)
 
-            struct(__MODULE__, Transmogrify.transmogrify(config))
-            |> update_paths(root)
-            |> update_imports()
-            |> update_plugins()
-            |> Dragon.Data.load_data()
+            dragon =
+              struct(__MODULE__, Transmogrify.transmogrify(config))
+              |> update_paths(root)
+              |> update_imports()
+              |> update_plugins()
+
+            try do
+              Dragon.Data.load_data(dragon)
+            rescue
+              error in Dragon.AbortError ->
+                {:error, error.message}
+            end
             |> case do
-              # {:error, msg} -> {:reply, {:error, msg}, state}
+              {:error, msg} -> {:reply, {:error, msg}, state}
               {:ok, %Dragon{} = dragon} -> {:reply, {:ok, dragon}, dragon}
             end
 

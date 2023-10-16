@@ -18,7 +18,7 @@ defmodule Mix.Tasks.Dragon.Build do
       info("\n#{(:os.system_time(:millisecond) - start) / 1000} seconds runtime\n")
     else
       {:error, reason} ->
-        abort(reason)
+        die(reason)
     end
   end
 end

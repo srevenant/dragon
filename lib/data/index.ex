@@ -32,6 +32,9 @@ defmodule Dragon.Data do
   def load_data(%Dragon{} = dragon, [%{type: "collection"} = args | rest]),
     do: Dragon.Data.Collection.load(dragon, args) |> load_data(rest)
 
+  def load_data(%Dragon{} = dragon, [%{type: "loader"} = args | rest]),
+    do: Dragon.Data.Loader.load(dragon, args) |> load_data(rest)
+
   def load_data(%Dragon{} = dragon, []),
     do: {:ok, %Dragon{dragon | data: Transmogrify.transmogrify(dragon.data)}}
 

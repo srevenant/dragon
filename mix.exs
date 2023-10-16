@@ -36,18 +36,19 @@ defmodule Dragon.MixProject do
 
   defp deps do
     [
-      {:earmark, "~> 1.4.34"},
-      {:jason, "~> 1.0"},
-      {:sass, "~> 3.6.4"},
-      {:plug, "~> 1.14.2"},
       {:bandit, "~> 0.7.7"},
+      {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
+      {:earmark, "~> 1.4.34"},
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
+      {:file_system, "~> 0.2"},
+      {:httpoison, "~> 2.0"},
+      {:jason, "~> 1.0"},
+      {:plug, "~> 1.14.2"},
       {:plug_cowboy, "~> 2.6.1"},
       {:rivet_utils, "~> 1.1.7"},
+      {:sass, "~> 3.6.4"},
       {:transmogrify, "~> 1.1.2"},
-      {:file_system, "~> 0.2"},
-      {:yaml_elixir, "~> 2.8.0"},
-      {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
-      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
+      {:yaml_elixir, "~> 2.8.0"}
     ]
   end
 
