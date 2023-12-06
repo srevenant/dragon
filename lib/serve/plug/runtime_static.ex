@@ -105,6 +105,7 @@ defmodule Dragon.Serve.Plug.RuntimeStatic do
         conn
         |> put_resp_header("content-type", content_type)
         |> put_resp_header("accept-ranges", "bytes")
+        |> put_resp_header("access-control-allow-origin", "*")
         |> maybe_add_encoding(content_encoding)
         |> merge_headers(headers)
         |> send_entire_file(path, options)

@@ -10,6 +10,7 @@ defmodule Dragon do
 
   @always_imports [
     "Dragon.Template.Functions",
+    "Dragon.English",
     "Transmogrify",
     "Transmogrify.As"
   ]

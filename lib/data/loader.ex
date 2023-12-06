@@ -19,7 +19,7 @@ defmodule Dragon.Data.Loader do
     end
   end
 
-  def load(%Dragon{} = dragon, args), do: abort("Invalid loader args: #{inspect(args)}")
+  def load(%Dragon{}, args), do: abort("Invalid loader args: #{inspect(args)}")
 
   defp run_loader(dragon, path, into) do
     if File.exists?(path) do

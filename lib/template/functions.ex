@@ -72,7 +72,7 @@ defmodule Dragon.Template.Functions do
     end
   end
 
-  defp file_is_folder(path, head), do: path
+  defp file_is_folder(path, _head), do: path
 
   ##############################################################################
   def is_url(path), do: Regex.match?(~r/^([a-z]+):\/\//, path)
@@ -134,13 +134,23 @@ defmodule Dragon.Template.Functions do
   end
 
   ##############################################################################
-  def get_data(path) do
+  def get_data(path, opts \\ []) do
     with {:ok, path, _root} <- fix_path(path),
-         # future: update find_file so it can optionally handle folders, and add it
          {:ok, dragon} <- Dragon.get(),
          %Dragon{} = d <-
            Dragon.Data.File.load(%Dragon{dragon | data: %{}}, %{type: "file", path: path}) do
-      Transmogrify.transmogrify(d.data)
+      data = Transmogrify.transmogrify(d.data)
+
+      if opts[:pop] do
+        Enum.reduce_while(1..opts[:pop], data, fn _, data ->
+          case Map.keys(data) do
+            [key] -> {:cont, data[key]}
+            _ -> {:halt, data}
+          end
+        end)
+      else
+        data
+      end
     end
   end
 

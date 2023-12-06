@@ -1,3 +1,7 @@
+- get_data() should respect _template syntax;
+- get_data() should have option for returning deep dict with path or not
+
+
 - bug: setting default value in @spec.args always sets default value even if value is set
 - collections need more work
   - metadata always set: @frame
