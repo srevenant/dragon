@@ -39,6 +39,7 @@ defmodule Dragon.Data.Collection do
 
     fullpath = Path.join(root, path)
     into = get_into(dragon, args)
+    last = List.last(into)
 
     case File.stat(fullpath) do
       {:ok, %{type: :directory}} ->
@@ -69,12 +70,22 @@ defmodule Dragon.Data.Collection do
           |> then(fn {_, list} -> list end)
           |> Enum.reverse()
 
-        put_into(dragon, [:data] ++ into, data)
+        into_index = String.to_atom("#{last}_index")
+
+        index = Map.new(data, &{collection_key(&1.src), &1})
+
+        dragon
+        |> put_into([:data] ++ into, data)
+        |> put_into([:data] ++ [into_index], index)
 
       _ ->
         abort("Cannot load data collection #{path}")
     end
   end
+
+  ##############################################################################
+  def collection_key(name),
+    do: Path.basename(name) |> String.replace(~r/[^a-z0-9]+/, "") |> String.to_atom()
 
   ##############################################################################
   def file_details(path) do

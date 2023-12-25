@@ -21,7 +21,7 @@ defmodule Dragon do
 
   defstruct root: ".",
             build: "_build",
-            layouts: "_lib/layout",
+            layouts: ["_lib/layout"],
             data_paths: %{},
             data: nil,
             imports: @always_imports,
@@ -34,7 +34,7 @@ defmodule Dragon do
   @type t :: %Dragon{
           root: String.t(),
           build: String.t(),
-          layouts: String.t(),
+          layouts: list(String.t()),
           data_paths: map(),
           data: list(map) | map() | nil,
           imports: list(String.t()) | String.t(),

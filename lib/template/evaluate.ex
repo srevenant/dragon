@@ -74,13 +74,8 @@ defmodule Dragon.Template.Evaluate do
              evaluate_frame(path, offset, headers, d, args),
            # then insert into layout as an include
            {:ok, _, _, output} <-
-             include_file(
-               Path.join(d.layouts, "_#{layout}"),
-               d,
-               :layout,
-               [content: output],
-               headers
-             ),
+             Enum.map(d.layouts, &Path.join(&1, layout))
+             |> include_first_file({d, [content: output], headers}),
            do: {:ok, target, headers, output}
     end)
   end
@@ -108,32 +103,55 @@ defmodule Dragon.Template.Evaluate do
   end
 
   ################################################################################
-  # we don't pay attention to layout here
-  def include_file(path, %Dragon{} = d, _, args, page \\ nil) do
+  defp include_first_file([path | rest], {d, _, _} = args) do
     case find_file(d.root, path) do
       {:ok, target} ->
-        stderr([:light_black, "+ Including #{drop_root(d.root, target)}"])
-
-        inputs =
-          read_template_header(target)
-          |> handle_non_template(target)
-
-        parent_page =
-          if is_nil(page) do
-            Map.get(Dragon.frame_head() || %{}, :page) || %{}
-          else
-            page
-          end
-
-        args =
-          check_include_args(inputs, Map.new(args))
-          |> Map.put(:page, parent_page)
-
-        evaluate(inputs, :layout, d, args)
+        include_file_inner(target, args)
 
       {:error, msg} ->
-        raise ArgumentError, message: "Include failed: #{msg}"
+        case rest do
+          [] ->
+            raise ArgumentError, message: "Include failed: #{msg}"
+
+          _ ->
+            include_first_file(rest, args)
+        end
     end
+  end
+
+  defp include_first_file([], _),
+    do: raise(ArgumentError, message: "Include failed, paths exhausted")
+
+  ##############################################################################
+  def include_file(x, d, unknown, args, page \\ nil)
+
+  def include_file(paths, %Dragon{} = d, _, args, page) when is_list(paths),
+    do: include_first_file(paths, {d, args, page})
+
+  def include_file(path, %Dragon{} = d, _, args, page),
+    do: include_first_file([path], {d, args, page})
+
+  ##############################################################################
+  # we don't pay attention to layout here
+  defp include_file_inner(target, {d, args, page}) do
+    stderr([:light_black, "+ Including #{drop_root(d.root, target)}"])
+
+    inputs =
+      read_template_header(target)
+      |> handle_non_template(target)
+
+    parent_page =
+      if is_nil(page) do
+        Map.get(Dragon.frame_head() || %{}, :page) || %{}
+      else
+        page
+      end
+
+    args =
+      check_include_args(inputs, Map.new(args))
+      |> Map.put(:page, parent_page)
+
+    evaluate(inputs, :layout, d, args)
   end
 
   defp handle_non_template({:error, _}, target), do: {:ok, %{}, target, 0, 0}

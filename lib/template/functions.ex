@@ -228,4 +228,12 @@ defmodule Dragon.Template.Functions do
     |> DateTime.from_unix!(:second)
     |> date(fmt)
   end
+
+  ##############################################################################
+  def in_collection(key) do
+    key = "#{key}_index" |> String.to_atom()
+    %{origin: origin} = Dragon.frame_head()
+    fkey = Dragon.Data.Collection.collection_key(origin)
+    Dragon.get!(:data)[key][fkey]
+  end
 end

@@ -134,8 +134,9 @@ defmodule Mix.Tasks.Dragon.New do
     - type: file
       path: _data
 
-  # where are layout files located?
-  layouts: _lib/layout
+  # where are layout files located? (multi accepted)
+  layouts:
+    - _lib/layout
 
   # where does the "built" version of the site go?
   staging: _build

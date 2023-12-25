@@ -51,6 +51,9 @@ defmodule Dragon.Plugin.Redirects do
   # redirects aren't bad anymore for SEO... is this still needed?
   # probably not: <meta name="robots" content="noindex">
   def redirect_body(canonical_url) do
+    # special case if redirecting to root it can be a double slash, which causes
+    # issues.
+    canonical_url = Regex.replace(~r{^//+}, canonical_url, "/")
     """
     <!DOCTYPE html>
     <html lang="en-US">
