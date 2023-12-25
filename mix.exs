@@ -4,7 +4,7 @@ defmodule Dragon.MixProject do
   def project do
     [
       app: :dragon,
-      version: "1.1.3",
+      version: "1.2.3",
       elixir: "~> 1.14",
       description:
         "Content Management System for static sites, like Jekyll but with elixir/eex rather than liquid templates",
