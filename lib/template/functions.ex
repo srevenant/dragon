@@ -245,7 +245,7 @@ defmodule Dragon.Template.Functions do
   def in_collection(key) when is_atom(key),
     do: get_collection_index(key)[get_collection_key()]
 
-  def in_collection(key, nil), do: nil
+  def in_collection(_key, nil), do: nil
 
   def in_collection(key, path) when is_atom(key) and is_binary(path),
     do: get_collection_index(key)[get_collection_key(path)]
