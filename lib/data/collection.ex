@@ -16,7 +16,8 @@ defmodule Dragon.Data.Collection do
             title: nil,
             date: nil,
             date_t: 0,
-            date_modified: nil
+            date_modified: nil,
+            headers: %{}
 
   @type t :: %__MODULE__{
           src: nil | String.t(),
@@ -27,7 +28,8 @@ defmodule Dragon.Data.Collection do
           title: nil | String.t(),
           date: nil | DateTime.t(),
           date_t: integer(),
-          date_modified: DateTime.t()
+          date_modified: DateTime.t(),
+          headers: map()
         }
 
   def load(%Dragon{root: root} = dragon, %{type: "collection", path: path} = args) do
@@ -84,8 +86,13 @@ defmodule Dragon.Data.Collection do
   end
 
   ##############################################################################
-  def collection_key(name),
-    do: Path.basename(name) |> String.replace(~r/[^a-z0-9]+/, "") |> String.to_atom()
+  def collection_key(name) do
+    name
+    |> Path.basename()
+    |> Path.rootname()
+    |> String.replace(~r/[^a-z0-9]+/, "")
+    |> String.to_atom()
+  end
 
   ##############################################################################
   def file_details(path) do
@@ -96,7 +103,8 @@ defmodule Dragon.Data.Collection do
       {:ok, header, _, _, _} ->
         with {:ok, meta} <- Dragon.Template.Env.get_file_metadata("", path, header, %{}) do
           # Map.take(meta, [:title, :date, :date_t, :date_modified, :"@spec"]))
-          struct(__MODULE__, meta)
+          headers = Map.drop(header, Map.keys(%__MODULE__{}))
+          struct(__MODULE__, Map.put(meta, :headers, headers))
         end
     end
   end

@@ -54,6 +54,7 @@ defmodule Dragon.Plugin.Redirects do
     # special case if redirecting to root it can be a double slash, which causes
     # issues.
     canonical_url = Regex.replace(~r{^//+}, canonical_url, "/")
+
     """
     <!DOCTYPE html>
     <html lang="en-US">

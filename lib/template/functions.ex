@@ -230,10 +230,37 @@ defmodule Dragon.Template.Functions do
   end
 
   ##############################################################################
-  def in_collection(key) do
-    key = "#{key}_index" |> String.to_atom()
-    %{origin: origin} = Dragon.frame_head()
-    fkey = Dragon.Data.Collection.collection_key(origin)
-    Dragon.get!(:data)[key][fkey]
+  def get_collection_index(key), do: Dragon.get!(:data)[String.to_atom("#{key}_index")]
+
+  def get_collection_key(), do: Dragon.frame_head() |> get_collection_key()
+  def get_collection_key(%{origin: origin}), do: Dragon.Data.Collection.collection_key(origin)
+
+  def get_collection_key(path) when is_binary(path) do
+    root = Dragon.get!(:root)
+
+    Dragon.Tools.File.drop_root(root, path)
+    |> Dragon.Data.Collection.collection_key()
+  end
+
+  def in_collection(key) when is_atom(key),
+    do: get_collection_index(key)[get_collection_key()]
+
+  def in_collection(key, nil), do: nil
+
+  def in_collection(key, path) when is_atom(key) and is_binary(path),
+    do: get_collection_index(key)[get_collection_key(path)]
+
+  def in_collection(key, item, direction) when is_map(item) and is_atom(direction) do
+    case in_collection(key, Map.get(item, direction)) do
+      nil ->
+        nil
+
+      relative ->
+        if relative.headers[:hidden] == true do
+          in_collection(key, relative, direction)
+        else
+          relative
+        end
+    end
   end
 end

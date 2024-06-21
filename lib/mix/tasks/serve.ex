@@ -13,6 +13,19 @@ defmodule Mix.Tasks.Dragon.Serve do
     command: "dragon"
   ]
 
+  defp invalid_errs(out, []), do: out
+
+  defp invalid_errs(out, opts),
+    do: [
+      "Invalid option(s): " <> (Enum.map(opts, fn {x, y} -> "#{x}=#{y}" end) |> Enum.join(" "))
+      | out
+    ]
+
+  defp invalid_args(out, []), do: out
+
+  defp invalid_args(out, args),
+    do: ["Invalid arguments (only one target allowed): " <> Enum.join(args, " ") | out]
+
   @impl true
   def run(args) do
     case parse_options(args, @opts) do
@@ -20,10 +33,8 @@ defmodule Mix.Tasks.Dragon.Serve do
         watch = Enum.reduce(opts, [], fn {:watch, path}, acc -> [path | acc] end)
         Dragon.Serve.start(target, Map.new(opts) |> Map.put(:watch, watch))
 
-      {_, _, errs} ->
-        syntax(
-          "Invalid option(s): #{Enum.map(errs, fn {x, y} -> "#{x}=#{y}" end) |> Enum.join(" ")}"
-        )
+      {_, args, errs} ->
+        invalid_errs([], errs) |> invalid_args(args) |> syntax()
     end
   end
 
