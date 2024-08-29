@@ -52,7 +52,7 @@ defmodule Dragon.Tools.File do
     if String.slice(path, 0..(String.length(root) - 1)) == root do
       start = String.length(root)
       start = if opts[:absolute], do: start, else: start + 1
-      String.slice(path, start..-1)
+      String.slice(path, start..-1//1)
     else
       path
     end
@@ -123,7 +123,7 @@ defmodule Dragon.Tools.File do
 
   def export_fname(fname) do
     if String.at(fname, 0) == "_" do
-      String.slice(fname, 1..-1)
+      String.slice(fname, 1..-1//1)
     else
       fname
     end

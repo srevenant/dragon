@@ -4,7 +4,7 @@ defmodule Dragon.MixProject do
   def project do
     [
       app: :dragon,
-      version: "1.2.3",
+      version: "1.3.0",
       elixir: "~> 1.14",
       description:
         "Content Management System for static sites, like Jekyll but with elixir/eex rather than liquid templates",
@@ -37,19 +37,20 @@ defmodule Dragon.MixProject do
 
   defp deps do
     [
-      {:bandit, "~> 0.7.7"},
-      {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
-      {:earmark, "~> 1.4.34"},
-      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
-      {:file_system, "~> 0.2"},
-      {:httpoison, "~> 2.0"},
-      {:jason, "~> 1.0"},
-      {:plug, "~> 1.14.2"},
-      {:plug_cowboy, "~> 2.6.1"},
-      {:rivet_utils, "~> 1.1.7"},
+      {:bandit, "~> 1.5.7"},
+      {:dialyxir, "~> 1.4.3", only: [:dev, :test], runtime: false},
+      {:earmark, "~> 1.4.47"},
+      {:ex_doc, ">= 0.34.0", only: :dev, runtime: false},
+      {:file_system, "~> 1.0.1"},
+      {:httpoison, "~> 2.2.1"},
+      {:jason, "~> 1.4"},
+      {:plug, "~> 1.16.1"},
+      {:rivet_utils, "~> 2.0.4"},
       {:sass, "~> 3.6.4"},
-      {:transmogrify, "~> 1.1.2"},
-      {:yaml_elixir, "~> 2.8.0"}
+      # not pretty but required until sass adjusts its dependency
+      {:elixir_make, "~> 0.8.0", override: true},
+      {:transmogrify, "~> 2.0.2"},
+      {:yaml_elixir, "~> 2.11.0"}
     ]
   end
 

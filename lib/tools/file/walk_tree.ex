@@ -86,7 +86,7 @@ defmodule Dragon.Tools.File.WalkTree do
 
   ##############################################################################
   defp ignore_file?(fname, list),
-    do: ignore_file?(fname, Path.extname(fname) |> String.slice(1..-1), list)
+    do: ignore_file?(fname, Path.extname(fname) |> String.slice(1..-1//1), list)
 
   defp ignore_file?(fname, ext, [pattern | rest]) when is_binary(pattern) do
     if ext == pattern, do: true, else: ignore_file?(fname, ext, rest)
@@ -101,7 +101,7 @@ defmodule Dragon.Tools.File.WalkTree do
 
   ##############################################################################
   defp match_file(fname, match),
-    do: match_file(fname, Path.extname(fname) |> String.slice(1..-1), match)
+    do: match_file(fname, Path.extname(fname) |> String.slice(1..-1//1), match)
 
   defp match_file(fname, ext, [{pattern, handler} | rest]) when is_binary(pattern) do
     if ext == pattern, do: handler, else: match_file(fname, ext, rest)

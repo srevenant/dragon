@@ -52,10 +52,10 @@ defmodule Dragon.Template.Functions do
       path = drop_root(root, origin, absolute: true)
 
       path =
-        if String.ends_with?(path, ".md"), do: String.slice(path, 0..-4) <> ".html", else: path
+        if String.ends_with?(path, ".md"), do: String.slice(path, 0..-4//1) <> ".html", else: path
 
       if String.ends_with?(path, "index.html") do
-        String.slice(path, 0..-11) <> "/"
+        String.slice(path, 0..-11//1) <> "/"
       else
         path
       end
@@ -66,7 +66,7 @@ defmodule Dragon.Template.Functions do
 
   defp file_is_folder(path, %{page: %{"@spec": %{output: "folder/index"}}}) do
     if String.ends_with?(path, ".html") do
-      String.slice(path, 0..-6) <> "/"
+      String.slice(path, 0..-6//1) <> "/"
     else
       path
     end
@@ -117,11 +117,11 @@ defmodule Dragon.Template.Functions do
   defp exists_as_file?(target), do: File.exists?(target)
 
   defp exists_as_indexed_folder?(target),
-    do: String.ends_with?(target, "index.html") and File.dir?(String.slice(target, 0..-11))
+    do: String.ends_with?(target, "index.html") and File.dir?(String.slice(target, 0..-11//1))
 
   # technically we should peek into the file's headers to see if it has folder/index, but for now just guess
   defp exists_as_folder?(target),
-    do: String.ends_with?(target, ".html") and File.dir?(String.slice(target, 0..-6))
+    do: String.ends_with?(target, ".html") and File.dir?(String.slice(target, 0..-6//1))
 
   defp one_slash(str), do: Regex.replace(~r|//+|, str, "/")
 
@@ -155,7 +155,7 @@ defmodule Dragon.Template.Functions do
   end
 
   def get_with_key(a, b) do
-    case Map.get(a, Transmogrify.As.as_key(b)) do
+    case Map.get(a, Transmogrify.As.as_key!(b)) do
       nil -> raise Dragon.AbortError, "Key '#{b}' not found in: #{inspect(a)}"
       result -> result
     end

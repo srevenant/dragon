@@ -160,14 +160,14 @@ defmodule Dragon.Template.Evaluate do
   defp check_include_args({:ok, %{"@spec": %{args: argref}}, _, _, _}, args) do
     Enum.map(argref, fn
       "?" <> k ->
-        {:optional, as_key(k)}
+        {:optional, as_key!(k)}
 
       k when is_binary(k) ->
-        {:required, as_key(k)}
+        {:required, as_key!(k)}
 
       m when is_map(m) ->
         case Map.to_list(m) do
-          [{k, v}] -> {:default, as_key(k), v}
+          [{k, v}] -> {:default, as_key!(k), v}
           value -> raise ArgumentError, message: "invalid @spec.args #{inspect(value)}"
         end
 
@@ -255,7 +255,7 @@ defmodule Dragon.Template.Evaluate do
   def error_message(%{message: msg}) when not is_nil(msg), do: msg
   def error_message(err), do: inspect(err)
 
-  def nofile_line([{:elixir_eval, :__FILE__, 1, [file: 'nofile', line: line]} | _]), do: line
+  def nofile_line([{:elixir_eval, :__FILE__, 1, [file: ~c"nofile", line: line]} | _]), do: line
   def nofile_line([_ | rest]), do: nofile_line(rest)
   def nofile_line([]), do: 0
 

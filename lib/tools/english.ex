@@ -46,13 +46,13 @@ defmodule Dragon.English do
   "reches"
   """
   def plural(word) do
-    last1 = String.slice(word, -1..-1)
-    last2 = String.slice(word, -2..-2)
-    last3 = String.slice(word, -2..-1)
+    last1 = String.slice(word, -1..-1//1)
+    last2 = String.slice(word, -2..-2//1)
+    last3 = String.slice(word, -2..-1//1)
 
     cond do
       last1 == "y" and not str_in?(last2, "aeiou") ->
-        String.slice(word, 0..-2) <> "ies"
+        String.slice(word, 0..-2//1) <> "ies"
 
       last1 == "o" and not str_in?(last2, "aeiouy") ->
         word <> "es"

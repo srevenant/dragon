@@ -29,7 +29,7 @@ defmodule Dragon.Serve.Watcher do
          {:ok, base} <- Dragon.Tools.File.get_true_path(root),
          {:ok, pid} <- FileSystem.start_link(dirs: [root] ++ paths) do
       FileSystem.subscribe(pid)
-      build = String.slice(build, (String.length(root) + 1)..-1)
+      build = String.slice(build, (String.length(root) + 1)..-1//1)
       {:ok, {String.length(base) + 1, base, root, String.length(build) - 1, build}}
     end
   end
@@ -50,8 +50,8 @@ defmodule Dragon.Serve.Watcher do
     if target_base != base do
       :all
     else
-      sliced = String.slice(path, rx..-1)
-      prefix = String.slice(sliced, 0..bx)
+      sliced = String.slice(path, rx..-1//1)
+      prefix = String.slice(sliced, 0..bx//1)
       # this shouldn't ever error, but just to be safe
       if prefix == build do
         :none
