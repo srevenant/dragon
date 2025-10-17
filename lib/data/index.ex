@@ -23,6 +23,15 @@ defmodule Dragon.Data do
     |> Path.split()
     |> Enum.reduce([], &(&2 ++ String.split(Dragon.Tools.File.export_fname(&1), ".")))
     |> Transmogrify.transmogrify(%{value_convert: :atom, value_case: :snake})
+    |> case do
+      path ->
+        if List.last(path) == :index do
+          {:index, path} = List.pop_at(path, -1)
+          path
+        else
+          path
+        end
+      end
   end
 
   ##############################################################################
